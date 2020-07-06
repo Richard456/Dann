@@ -71,6 +71,27 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
         return get_gtsrb(dataset_root, batch_size, train)
 
 
+def get_data_loader_weight(name, dataset_root, batch_size, weight,train=True):
+    """Get data loader by name."""
+    if name == "mnist":
+        return get_mnist(dataset_root, batch_size, train)
+    elif name == "mnistm":
+        return get_mnistm(dataset_root, batch_size, train)
+    elif name == "svhn":
+        return get_svhn(dataset_root, batch_size, train)
+    elif name == "amazon31":
+        return get_office(dataset_root, batch_size, 'amazon')
+    elif name == "webcam31":
+        return get_office(dataset_root, batch_size, 'webcam')
+    elif name == "webcam10":
+        return get_officecaltech(dataset_root, batch_size, 'webcam')
+    elif name == "syndigits":
+        return get_syndigits(dataset_root, batch_size, train)
+    elif name == "synsigns":
+        return get_synsigns(dataset_root, batch_size, train)
+    elif name == "gtsrb":
+        return get_gtsrb(dataset_root, batch_size, train)
+
 def init_model(net, restore):
     """Init models with cuda and weights."""
     # init weights of model

@@ -5,16 +5,16 @@ from torchvision import datasets, transforms
 import os
 
 
-def get_svhn(dataset_root, batch_size, train):
+def get_svhn(dataset_root, batch_size, train, sampler = 'None'):
     """Get SVHN datasets loader."""
     # image pre-processing
     pre_process = transforms.Compose([transforms.Resize(32),
                                       transforms.ToTensor(),
                                       transforms.Normalize(
-                                          mean=[0.5, 0.5, 0.5],
-                                          std=[0.5, 0.5, 0.5]
+                                          mean=(0.5, 0.5, 0.5),
+                                          std=(0.5, 0.5, 0.5)
                                       )])
-
+    
     # datasets and data loader
     if train:
         svhn_dataset = datasets.SVHN(root=os.path.join(dataset_root),
@@ -26,11 +26,14 @@ def get_svhn(dataset_root, batch_size, train):
                                    split='test',
                                    transform=pre_process,
                                    download=True)
+    num_sample = len(svhn_dataset)
+
 
     svhn_data_loader = torch.utils.data.DataLoader(
         dataset=svhn_dataset,
         batch_size=batch_size,
-        shuffle=True,
+        shuffle=False,
+        sampler=sampler,
         drop_last=True)
 
-    return svhn_data_loader
+    return svhn_data_loader, num_sample

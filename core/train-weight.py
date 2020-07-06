@@ -10,6 +10,18 @@ from utils.utils import save_model
 import torch.backends.cudnn as cudnn
 cudnn.benchmark = True
 
+def weight(ten, a=10):
+    a = torch.tensor(a, device=ten.device)
+    return (torch.atan(a*(ten-0.5)) +
+            torch.atan(0.5*a))/(2*torch.atan(a*0.5))
+def normalized_weight(ten, a = 10, reverse = False): 
+    prob = torch.exp(ten[:,1])/ (torch.exp(ten[:,1]) + torch.exp(ten[:,0])) 
+    if not reverse: 
+        w = weight(prob)
+    else: 
+        w = weight(1-prob)
+    return w
+
 def train_src(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_eval, device, logger):
     """Train dann."""
     ####################
@@ -110,7 +122,8 @@ def train_src(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_e
 
     return model
 
-def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_eval, device, logger):
+
+def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_eval, num_src, num_tgt, device, logger):
     """Train dann."""
     ####################
     # 1. setup network #
@@ -140,7 +153,8 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
 
     criterion0 = nn.CrossEntropyLoss(reduction = 'mean')
     criterion = nn.CrossEntropyLoss(reduction = 'none')
-    source_weight =  ..... 
+    weight_src = torch.ones(num_src) 
+    weight_tgt = torch.ones(num_tgt)
     ####################
     # 2. train network #
     ####################
@@ -151,7 +165,7 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
         # zip source and target data pair
         len_dataloader = min(len(src_data_loader), len(tgt_data_loader))
         data_zip = enumerate(zip(src_data_loader, tgt_data_loader))
-        for step, ((images_src, class_src, idx_source), (images_tgt, _, idx_target)) in data_zip:
+        for step, ((images_src, class_src, idx_src), (images_tgt, _, idx_tgt)) in data_zip:
 
             p = float(step + epoch * len_dataloader) / \
                 params.num_epochs / len_dataloader
@@ -180,11 +194,19 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             # train on source domain
             src_class_output, src_domain_output = model(input_data=images_src, alpha=alpha)
             src_loss_class = criterion0(src_class_output, class_src)
-            src_loss_domain = criterion(src_domain_output, label_src) 
+            src_loss_domain = criterion(src_domain_output, label_src)
+            weight_src[source_idx] = normalized_weight(src_domain_output.data).detach()
+            src_loss_domain = torch.dot(weight_src[idx_src], src_loss_domain
+                                     )/ torch.sum(weight_src[idx_src])
 
             # train on target domain
             _, tgt_domain_output = model(input_data=images_tgt, alpha=alpha)
             tgt_loss_domain = criterion(tgt_domain_output, label_tgt)
+            # weight_tgt[idx_tgt] = normalized_weight(
+            #     tgt_domain_output.data, reverse = True).detach()
+            # tgt_loss_domain = torch.dot(weight_tgt[idx_tgt], tgt_loss_domain
+            #                             ) / torch.sum(weight_tgt[idx_tgt])
+            
 
             loss = src_loss_class + src_loss_domain + tgt_loss_domain
             if params.src_only_flag:

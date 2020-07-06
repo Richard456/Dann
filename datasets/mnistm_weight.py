@@ -37,7 +37,7 @@ class GetLoader(data.Dataset):
     def __len__(self):
         return self.n_data
 
-def get_mnistm(dataset_root, batch_size, train, sampler = 'None'):
+def get_mnistm_weight(dataset_root, batch_size, train, sampler = 'None'):
     """Get MNISTM datasets loader."""
     # image pre-processing
     pre_process = transforms.Compose([transforms.Resize(28),
@@ -60,6 +60,7 @@ def get_mnistm(dataset_root, batch_size, train, sampler = 'None'):
             data_root=os.path.join(dataset_root, 'mnist_m', 'mnist_m_test'),
             data_list=train_list,
             transform=pre_process)
+    num_sample = len(mnistm_dataset)
 
     mnistm_dataloader = torch.utils.data.DataLoader(
         dataset=mnistm_dataset,
@@ -68,4 +69,4 @@ def get_mnistm(dataset_root, batch_size, train, sampler = 'None'):
         sampler=sampler,
         num_workers=8)
 
-    return mnistm_dataloader
+    return mnistm_dataloader, num_sample
