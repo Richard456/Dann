@@ -13,7 +13,7 @@ from utils.utils import get_data_loader, init_model, init_random_seed
 class Config(object):
     # params for path
     model_name = "svhn-mnist"
-    model_base = '/home/wogong/models/pytorch-dann'
+    model_base = '/nobackup/yguo/pytorch-dann'
     model_root = os.path.expanduser(os.path.join('~', 'Models', 'pytorch-DANN', model_name))
     note = 'paper-structure'
     model_root = os.path.join(model_base, model_name, note + '_' + datetime.datetime.now().strftime('%m%d_%H%M%S'))
@@ -28,13 +28,13 @@ class Config(object):
 
     # params for source dataset
     src_dataset = "svhn"
-    src_image_root = os.path.join('/home/wogong/datasets', 'svhn')
+    src_image_root = os.path.join('/nobackup/yguo/dataset', 'svhn')
     src_model_trained = True
     src_classifier_restore = os.path.join(model_root, src_dataset + '-source-classifier-final.pt')
 
     # params for target dataset
     tgt_dataset = "mnist"
-    tgt_image_root = os.path.join('/home/wogong/datasets', 'mnist')
+    tgt_image_root = os.path.join('/nobackup/yguo/dataset', 'mnist')
     tgt_model_trained = True
     dann_restore = os.path.join(model_root, src_dataset + '-' + tgt_dataset + '-dann-final.pt')
 

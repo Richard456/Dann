@@ -8,18 +8,18 @@ import os
 def get_mnist(dataset_root, batch_size, train):
     """Get MNIST datasets loader."""
     # image pre-processing
-    pre_process = transforms.Compose([transforms.Resize(32), # different img size settings for mnist(28) and svhn(32).
+    pre_process = transforms.Compose([transforms.Resize(28), # different img size settings for mnist(28) and svhn(32).
                                       transforms.ToTensor(),
                                       transforms.Normalize(
-                                          mean=(0.5, 0.5, 0.5),
-                                          std=(0.5, 0.5, 0.5)
+                                          mean=[0.5],
+                                          std=[0.5]
                                       )])
 
     # datasets and data loader
     mnist_dataset = datasets.MNIST(root=os.path.join(dataset_root),
                                    train=train,
                                    transform=pre_process,
-                                   download=False)
+                                   download=True)
 
 
     mnist_data_loader = torch.utils.data.DataLoader(
