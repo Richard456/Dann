@@ -30,6 +30,8 @@ def get_mnist_weight(dataset_root, batch_size, train, sampler = 'None'):
                                    transform=pre_process,
                                    download=True)
     num_sample = len(mnist_dataset)
+    print("MNIST{}".format(num_sample))
+    print(train)
     if sampler is not None:
         sampler.num_samples = num_sample
 
@@ -42,5 +44,6 @@ def get_mnist_weight(dataset_root, batch_size, train, sampler = 'None'):
         sampler=sampler,
         drop_last=True,
         num_workers=8)
+    print("MNIST len {}".format(len(mnist_data_loader)))
 
     return mnist_data_loader, num_sample

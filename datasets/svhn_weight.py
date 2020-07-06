@@ -35,11 +35,13 @@ def get_svhn_weight(dataset_root, batch_size, train, sampler = 'None'):
     if sampler is not None: 
         sampler.num_samples = num_sample
         
+    print("SVHN{}".format(num_sample))
     svhn_data_loader = torch.utils.data.DataLoader(
         dataset=svhn_dataset,
         batch_size=batch_size,
         shuffle=False,
         sampler=sampler,
         drop_last=True)
+    print("SVHN len {}".format(len(svhn_data_loader)))
 
     return svhn_data_loader, num_sample
