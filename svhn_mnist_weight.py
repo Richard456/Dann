@@ -6,7 +6,7 @@ from tensorboardX import SummaryWriter
 import torch
 sys.path.append('../')
 from models.model import SVHNmodel
-from core.train import train_dann
+from core.train_weight import train_dann
 from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed
 import numpy as np
 
@@ -79,17 +79,19 @@ value = 0.0625
 # WEIGHTS = torch.tensor(np.concatenate(
 #     [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
 
-target_sampler = torch.utils.data.sampler.WeightedRandomSampler(
-    target_sample_weight, len(target_sample_weight))
-WEIGHTS = torch.ones(10)
 
+WEIGHTS = torch.ones(10)
+target_sampler = torch.utils.data.sampler.WeightedRandomSampler(
+    WEIGHTS, 1) # The number of samples will be updated automatically
 
 
 # load dataset
-src_data_loader = get_data_loader_weight(params.src_dataset, params.src_image_root, params.batch_size, train=True)
+src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.src_image_root, params.batch_size, train=True)
 src_data_loader_eval = get_data_loader(params.src_dataset, params.src_image_root, params.batch_size, train=False)
-tgt_data_loader = get_data_loader_weight(params.tgt_dataset, params.tgt_image_root, params.batch_size, train=True, sampler = )
-tgt_data_loader_eval = get_data_loader_weight(params.tgt_dataset, params.tgt_image_root, params.batch_size, train=False, sampler = )
+tgt_data_loader, num_tgt_train = get_data_loader_weight(
+    params.tgt_dataset, params.tgt_image_root, params.batch_size, train=True, sampler=target_sampler)
+tgt_data_loader_eval, _ = get_data_loader_weight(
+    params.tgt_dataset, params.tgt_image_root, params.batch_size, train=False, sampler=target_sampler)
 
 
 
@@ -99,4 +101,5 @@ dann = init_model(net=SVHNmodel(), restore=None)
 # train dann model
 print("Training dann model")
 if not (dann.restored and params.dann_restore):
-    dann = train_dann(dann, params, src_data_loader, tgt_data_loader, tgt_data_loader_eval, device, logger)
+    dann = train_dann(dann, params, src_data_loader, tgt_data_loader, 
+                      tgt_data_loader_eval, num_src_train, num_tgt_train, device, logger)
