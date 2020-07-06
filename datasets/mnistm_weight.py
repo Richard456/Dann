@@ -62,7 +62,7 @@ def get_mnistm_weight(dataset_root, batch_size, train, sampler = None):
             transform=pre_process)
     num_sample = len(mnistm_dataset)
     if sampler is not None: 
-        sample.num_samples = num_sample
+        sampler.num_samples = num_sample
     mnistm_dataloader = torch.utils.data.DataLoader(
         dataset=mnistm_dataset,
         batch_size=batch_size,

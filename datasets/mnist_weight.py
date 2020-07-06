@@ -5,10 +5,19 @@ import torch
 from torchvision import datasets, transforms
 import os
 
+
+class MNIST(datasets.MNIST):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def __getitem__(self, index):
+        data, target = super().__getitem__(index)
+        return data, target, index
+    
 def get_mnist_weight(dataset_root, batch_size, train, sampler = 'None'):
     """Get MNIST datasets loader."""
     # image pre-processing
-    pre_process = transforms.Compose([transforms.Resize(28), # different img size settings for mnist(28) and svhn(32).
+    pre_process = transforms.Compose([transforms.Resize(32), # different img size settings for mnist(28) and svhn(32).
                                       transforms.ToTensor(),
                                       transforms.Normalize(
                                           mean=[0.5],
@@ -16,11 +25,13 @@ def get_mnist_weight(dataset_root, batch_size, train, sampler = 'None'):
                                       )])
 
     # datasets and data loader
-    mnist_dataset = datasets.MNIST(root=os.path.join(dataset_root),
+    mnist_dataset = MNIST(root=os.path.join(dataset_root),
                                    train=train,
                                    transform=pre_process,
                                    download=True)
     num_sample = len(mnist_dataset)
+    if sampler is not None:
+        sampler.num_samples = num_sample
 
 
 

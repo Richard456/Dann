@@ -1,7 +1,7 @@
 import torch.utils.data
 import torch.nn as nn
 
-def test(model, data_loader, device, flag):
+def test_weight(model, data_loader, device, flag):
     """Evaluate model for dataset."""
     # set eval state for Dropout and BN layers
     model.eval()
@@ -15,7 +15,7 @@ def test(model, data_loader, device, flag):
     # set loss function
     criterion = nn.CrossEntropyLoss()
     # evaluate network
-    for (images, labels) in data_loader:
+    for (images, labels, _) in data_loader:
         images = images.to(device)
         labels = labels.to(device)  #labels = labels.squeeze(1)
         size = len(labels)

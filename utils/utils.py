@@ -5,6 +5,10 @@ import torch
 import torch.backends.cudnn as cudnn
 
 from datasets import get_mnist, get_mnistm, get_svhn
+from datasets.mnist_weight import get_mnist_weight
+from datasets.mnistm_weight import get_mnistm_weight
+from datasets.svhn_weight import get_svhn_weight
+
 from datasets.office import get_office
 from datasets.officecaltech import get_officecaltech
 from datasets.syndigits import get_syndigits
@@ -71,14 +75,14 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
         return get_gtsrb(dataset_root, batch_size, train)
 
 
-def get_data_loader_weight(name, dataset_root, batch_size, weight,train=True):
+def get_data_loader_weight(name, dataset_root, batch_size, train=True, sampler = None):
     """Get data loader by name."""
     if name == "mnist":
-        return get_mnist(dataset_root, batch_size, train)
+        return get_mnist_weight(dataset_root, batch_size, train, sampler = sampler)
     elif name == "mnistm":
-        return get_mnistm(dataset_root, batch_size, train)
+        return get_mnistm_weight(dataset_root, batch_size, train, sampler = sampler)
     elif name == "svhn":
-        return get_svhn(dataset_root, batch_size, train)
+        return get_svhn_weight(dataset_root, batch_size, train, sampler = sampler)
     elif name == "amazon31":
         return get_office(dataset_root, batch_size, 'amazon')
     elif name == "webcam31":

@@ -6,6 +6,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from core.test import test
+from core.test_weight import test_weight
 from utils.utils import save_model
 import torch.backends.cudnn as cudnn
 cudnn.benchmark = True
@@ -153,8 +154,8 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
 
     criterion0 = nn.CrossEntropyLoss(reduction = 'mean')
     criterion = nn.CrossEntropyLoss(reduction = 'none')
-    weight_src = torch.ones(num_src) 
-    weight_tgt = torch.ones(num_tgt)
+    weight_src = torch.ones(num_src).to(device)
+    weight_tgt = torch.ones(num_tgt).to(device)
     ####################
     # 2. train network #
     ####################
@@ -195,13 +196,12 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             src_class_output, src_domain_output = model(input_data=images_src, alpha=alpha)
             src_loss_class = criterion0(src_class_output, class_src)
             src_loss_domain = criterion(src_domain_output, label_src)
-            weight_src[source_idx] = normalized_weight(src_domain_output.data).detach()
+            weight_src[idx_src] = normalized_weight(src_domain_output.data).detach()
             src_loss_domain = torch.dot(weight_src[idx_src], src_loss_domain
                                      )/ torch.sum(weight_src[idx_src])
-
             # train on target domain
             _, tgt_domain_output = model(input_data=images_tgt, alpha=alpha)
-            tgt_loss_domain = criterion(tgt_domain_output, label_tgt)
+            tgt_loss_domain = criterion0(tgt_domain_output, label_tgt)
             # weight_tgt[idx_tgt] = normalized_weight(
             #     tgt_domain_output.data, reverse = True).detach()
             # tgt_loss_domain = torch.dot(weight_tgt[idx_tgt], tgt_loss_domain
@@ -232,8 +232,8 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
 
         # eval model
         if ((epoch + 1) % params.eval_step == 0):
-            tgt_test_loss, tgt_acc, tgt_acc_domain = test(model, tgt_data_loader_eval, device, flag='target')
-            src_test_loss, src_acc, src_acc_domain = test(model, src_data_loader, device, flag='source')
+            tgt_test_loss, tgt_acc, tgt_acc_domain = test_weight(model, tgt_data_loader_eval, device, flag='target')
+            src_test_loss, src_acc, src_acc_domain = test_weight(model, src_data_loader, device, flag='source')
             logger.add_scalar('src_test_loss', src_test_loss, global_step)
             logger.add_scalar('src_acc', src_acc, global_step)
             logger.add_scalar('src_acc_domain', src_acc_domain, global_step)

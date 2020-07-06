@@ -93,8 +93,6 @@ tgt_data_loader, num_tgt_train = get_data_loader_weight(
 tgt_data_loader_eval, _ = get_data_loader_weight(
     params.tgt_dataset, params.tgt_image_root, params.batch_size, train=False, sampler=target_sampler)
 
-
-
 # load dann model
 dann = init_model(net=SVHNmodel(), restore=None)
 
