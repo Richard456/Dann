@@ -1,7 +1,7 @@
 import os
 import sys
 import datetime
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 import torch
 sys.path.append('../')
@@ -53,11 +53,11 @@ class Config(object):
     # save_step = 500
     # eval_step = 5  # epochs
 
-    manual_seed = None
+    manual_seed = 0
     alpha = 0
 
     # params for optimizing models
-    lr = 0.01
+    lr = 0.001
     momentum = 0.9
     weight_decay = 1e-6
 
@@ -80,21 +80,18 @@ value = 0.0625
 #     [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
 
 
-WEIGHTS = torch.ones(10)
-target_sampler = torch.utils.data.sampler.WeightedRandomSampler(
-    WEIGHTS, 1) # The number of samples will be updated automatically
-
-
+value = 0.0625
+WEIGHTS = torch.tensor(np.concatenate([[value],np.random.uniform(value,1-value,8),[1-value]]))
 # load dataset
 src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.src_image_root, params.batch_size, train=True)
 src_data_loader_eval = get_data_loader(params.src_dataset, params.src_image_root, params.batch_size, train=False)
 tgt_data_loader, num_tgt_train = get_data_loader_weight(
-    params.tgt_dataset, params.tgt_image_root, params.batch_size, train=True, sampler=target_sampler)
+    params.tgt_dataset, params.tgt_image_root, params.batch_size, train=True, weights = WEIGHTS)
 tgt_data_loader_eval, _ = get_data_loader_weight(
-    params.tgt_dataset, params.tgt_image_root, params.batch_size, train=False, sampler=target_sampler)
+    params.tgt_dataset, params.tgt_image_root, params.batch_size, train=False, weights = WEIGHTS)
+# Cannot use the same sampler for both training and testing dataset 
 
-print(num_src_train, num_tgt_train)
-print(len(src_data_loader), len(tgt_data_loader))
+
 # load dann model
 dann = init_model(net=SVHNmodel(), restore=None)
 

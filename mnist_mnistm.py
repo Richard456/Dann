@@ -6,13 +6,14 @@ sys.path.append('../')
 from models.model import MNISTmodel, MNISTmodel_plain
 from core.train import train_dann
 from utils.utils import get_data_loader, init_model, init_random_seed
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Config(object):
     # params for path
+    model_name = "mnist-mnistm"
     dataset_root = os.path.expanduser('/nobackup/yguo/dataset')
-    model_root = os.path.expanduser(os.path.join('~', 'Models', 'pytorch-DANN'))
+    model_root = os.path.expanduser(os.path.join('~', 'Models', 'pytorch-DANN', model_name))
     finetune_flag = False
 
     # params for datasets and data loader

@@ -165,7 +165,6 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
         model.train()
         # zip source and target data pair
         len_dataloader = min(len(src_data_loader), len(tgt_data_loader))
-        print(len(src_data_loader), len(tgt_data_loader))
         data_zip = enumerate(zip(src_data_loader, tgt_data_loader))
         for step, ((images_src, class_src, idx_src), (images_tgt, _, idx_tgt)) in data_zip:
 
@@ -196,17 +195,17 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             # train on source domain
             src_class_output, src_domain_output = model(input_data=images_src, alpha=alpha)
             src_loss_class = criterion0(src_class_output, class_src)
-            src_loss_domain = criterion0(src_domain_output, label_src)
-            # weight_src[idx_src] = normalized_weight(src_domain_output.data).detach()
-            # src_loss_domain = torch.dot(weight_src[idx_src], src_loss_domain
-            #                          )/ torch.sum(weight_src[idx_src])
-            # train on target domain
+            src_loss_domain = criterion(src_domain_output, label_src)
+            weight_src[idx_src] = normalized_weight(src_domain_output.data).detach()
+            src_loss_domain = torch.dot(weight_src[idx_src], src_loss_domain
+                                     )/ torch.sum(weight_src[idx_src])
+            #train on target domain
             _, tgt_domain_output = model(input_data=images_tgt, alpha=alpha)
-            tgt_loss_domain = criterion0(tgt_domain_output, label_tgt)
-            # weight_tgt[idx_tgt] = normalized_weight(
-            #     tgt_domain_output.data, reverse = True).detach()
-            # tgt_loss_domain = torch.dot(weight_tgt[idx_tgt], tgt_loss_domain
-            #                             ) / torch.sum(weight_tgt[idx_tgt])
+            tgt_loss_domain = criterion(tgt_domain_output, label_tgt)
+            weight_tgt[idx_tgt] = normalized_weight(
+                tgt_domain_output.data, reverse = False).detach()
+            tgt_loss_domain = torch.dot(weight_tgt[idx_tgt], tgt_loss_domain
+                                        ) / torch.sum(weight_tgt[idx_tgt])
             
 
             loss = src_loss_class + src_loss_domain + tgt_loss_domain

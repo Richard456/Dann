@@ -1,6 +1,6 @@
 import os
 import random
-
+import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 
@@ -39,18 +39,17 @@ def init_weights(layer):
         layer.bias.data.fill_(0)
 
 
-def init_random_seed(manual_seed):
-    """Init random seed."""
-    seed = None
-    if manual_seed is None:
-        seed = random.randint(1, 10000)
-    else:
-        seed = manual_seed
-    print("use random seed: {}".format(seed))
+def init_random_seed(seed):
     random.seed(seed)
     torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    
+
+
 
 
 def get_data_loader(name, dataset_root, batch_size, train=True):
@@ -75,14 +74,14 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
         return get_gtsrb(dataset_root, batch_size, train)
 
 
-def get_data_loader_weight(name, dataset_root, batch_size, train=True, sampler = None):
+def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights = torch.tensor([])):
     """Get data loader by name."""
     if name == "mnist":
-        return get_mnist_weight(dataset_root, batch_size, train, sampler = sampler)
+        return get_mnist_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "mnistm":
-        return get_mnistm_weight(dataset_root, batch_size, train, sampler = sampler)
+        return get_mnistm_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "svhn":
-        return get_svhn_weight(dataset_root, batch_size, train, sampler = sampler)
+        return get_svhn_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "amazon31":
         return get_office(dataset_root, batch_size, 'amazon')
     elif name == "webcam31":

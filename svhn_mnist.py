@@ -1,7 +1,7 @@
 import os
 import sys
 import datetime
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 import torch
 sys.path.append('../')
@@ -53,7 +53,7 @@ class Config(object):
     # save_step = 500
     # eval_step = 5  # epochs
 
-    manual_seed = None
+    manual_seed = 8888
     alpha = 0
 
     # params for optimizing models
