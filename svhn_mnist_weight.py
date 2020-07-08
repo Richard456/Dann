@@ -75,13 +75,13 @@ device = torch.device("cuda:" + params.gpu_id if torch.cuda.is_available() else 
 init_random_seed(params.manual_seed)
 
 # Create custom target sampler 
-value = 0.0625
 # WEIGHTS = torch.tensor(np.concatenate(
 #     [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
 
 
-value = 0.0625
-WEIGHTS = torch.tensor(np.concatenate([[value],np.random.uniform(value,1-value,8),[1-value]]))
+value = 0
+# WEIGHTS = torch.tensor(np.concatenate([[value],np.random.uniform(value,1-value,8),[1-value]]))
+WEIGHTS = torch.tensor([0,0,0,0,0,0,0,0,0,1])
 # load dataset
 src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.src_image_root, params.batch_size, train=True)
 src_data_loader_eval = get_data_loader(params.src_dataset, params.src_image_root, params.batch_size, train=False)

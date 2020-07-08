@@ -5,9 +5,11 @@ import torch
 import torch.backends.cudnn as cudnn
 
 from datasets import get_mnist, get_mnistm, get_svhn
+from datasets.usps import get_usps
 from datasets.mnist_weight import get_mnist_weight
 from datasets.mnistm_weight import get_mnistm_weight
 from datasets.svhn_weight import get_svhn_weight
+from datasets.usps_weight import get_usps_weight
 
 from datasets.office import get_office
 from datasets.officecaltech import get_officecaltech
@@ -72,6 +74,8 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
         return get_synsigns(dataset_root, batch_size, train)
     elif name == "gtsrb":
         return get_gtsrb(dataset_root, batch_size, train)
+    elif name == "usps": 
+        return get_usps(dataset_root, batch_size, train)
 
 
 def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights = torch.tensor([])):
@@ -82,6 +86,8 @@ def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights =
         return get_mnistm_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "svhn":
         return get_svhn_weight(dataset_root, batch_size, train, weights = weights)
+    elif name == "usps": 
+        return get_usps_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "amazon31":
         return get_office(dataset_root, batch_size, 'amazon')
     elif name == "webcam31":

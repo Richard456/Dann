@@ -17,7 +17,7 @@ class MNIST(datasets.MNIST):
 def get_mnist_weight(dataset_root, batch_size, train, weights):
     """Get MNIST datasets loader."""
     # image pre-processing
-    pre_process = transforms.Compose([transforms.Resize(32), # different img size settings for mnist(28) and svhn(32).
+    pre_process = transforms.Compose([transforms.Resize(28), # different img size settings for mnist(28) and svhn(32).
                                       transforms.ToTensor(),
                                       transforms.Normalize(
                                           mean=[0.5],

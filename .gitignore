@@ -91,6 +91,7 @@ ENV/
 # Spyder project settings
 .spyderproject
 .spyproject
+.vscode 
 
 # Rope project settings
 .ropeproject
@@ -106,3 +107,4 @@ ENV/
 .DS_Store
 main_legacy.py
 test.ipynb
+*.durga
