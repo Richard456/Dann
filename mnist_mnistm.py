@@ -78,7 +78,7 @@ tgt_data_loader = get_data_loader(params.tgt_dataset, params.dataset_root, param
 tgt_data_loader_eval = get_data_loader(params.tgt_dataset, params.dataset_root, params.batch_size, train=False)
 
 # load dann model
-dann = init_model(net=MNISTmodel_plain(), restore=None)
+dann = init_model(net=MNISTmodel(), restore=None)
 
 # train dann model
 print("Training dann model")

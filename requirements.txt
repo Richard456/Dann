@@ -1,5 +1,5 @@
 numpy
 Pillow
-tensorboardX
+torch.utils.tensorboard
 torch
 torchvision

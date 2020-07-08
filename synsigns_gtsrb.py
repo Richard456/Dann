@@ -1,7 +1,7 @@
 import os
 import sys
 import datetime
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 import torch
 sys.path.append('../')

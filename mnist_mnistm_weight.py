@@ -6,7 +6,7 @@ sys.path.append('../')
 from models.model import MNISTmodel, MNISTmodel_plain
 from core.train_weight import train_dann
 from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Config(object):

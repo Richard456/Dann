@@ -6,7 +6,7 @@ sys.path.append('../')
 from models.model import MNISTmodel, MNISTmodel_plain
 from core.train_weight import train_dann
 from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 
 
@@ -75,7 +75,7 @@ device = torch.device("cuda:" + params.gpu_id if torch.cuda.is_available() else 
 
 # value = 0.0625
 # WEIGHTS = torch.tensor(np.concatenate([[value],np.random.uniform(value,1-value,8),[1-value]]))# load dataset
-WEIGHTS = torch.tensor([0,0,0,0,0,1,1,1,1,1])
+WEIGHTS = torch.tensor([1,1,1,1,1,0,0,0,0,0])
 
 src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.dataset_root, params.batch_size, train=True)
 src_data_loader_eval = get_data_loader(params.src_dataset, params.dataset_root, params.batch_size, train=False)

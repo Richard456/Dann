@@ -15,6 +15,9 @@ def weight(ten, a=10):
     a = torch.tensor(a, device=ten.device)
     return (torch.atan(a*(ten-0.5)) +
             torch.atan(0.5*a))/(2*torch.atan(a*0.5))
+def lipton_weight(ten, beta = 4):
+        order = torch.argsort(ten)
+        return (order < len(ten)/(1+beta)).float()
 def normalized_weight(ten, a = 10, reverse = False): 
     prob = torch.exp(ten[:,1])/ (torch.exp(ten[:,1]) + torch.exp(ten[:,0])) 
     if not reverse: 
@@ -22,6 +25,7 @@ def normalized_weight(ten, a = 10, reverse = False):
     else: 
         w = weight(1-prob)
     return w
+
 
 def train_src(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_eval, device, logger):
     """Train dann."""
@@ -201,11 +205,11 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             #                          )/ torch.sum(weight_src[idx_src])
             #train on target domain
             _, tgt_domain_output = model(input_data=images_tgt, alpha=alpha)
-            tgt_loss_domain = criterion(tgt_domain_output, label_tgt)
-            weight_tgt[idx_tgt] = normalized_weight(
-                tgt_domain_output.data, reverse = True).detach()
-            tgt_loss_domain = torch.dot(weight_tgt[idx_tgt], tgt_loss_domain
-                                        ) / torch.sum(weight_tgt[idx_tgt])
+            tgt_loss_domain = criterion0(tgt_domain_output, label_tgt)
+            # weight_tgt[idx_tgt] = normalized_weight(
+            #     tgt_domain_output.data, reverse = True).detach()
+            # tgt_loss_domain = torch.dot(weight_tgt[idx_tgt], tgt_loss_domain
+            #                             ) / torch.sum(weight_tgt[idx_tgt])
             
 
             loss = src_loss_class + src_loss_domain + tgt_loss_domain
