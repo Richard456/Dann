@@ -13,7 +13,7 @@ class Config(object):
     # params for path
     model_name = "mnist-mnistm"
     dataset_root = os.path.expanduser('/nobackup/yguo/dataset')
-    model_root = os.path.expanduser(os.path.join('~', 'Models', 'pytorch-DANN', model_name))
+    model_root = os.path.expanduser(os.path.join('runs', model_name))
     finetune_flag = False
 
     # params for datasets and data loader
