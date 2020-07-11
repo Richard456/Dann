@@ -17,6 +17,9 @@ from datasets.syndigits import get_syndigits
 from datasets.synsigns import get_synsigns
 from datasets.gtsrb import get_gtsrb
 
+def get_dataset_root(): 
+    return '/nobackup/yguo/datasets'
+
 def make_cuda(tensor):
     """Use CUDA if it's available."""
     if torch.cuda.is_available():
@@ -42,6 +45,9 @@ def init_weights(layer):
 
 
 def init_random_seed(seed):
+    if seed == None:
+        seed = random.randint(1, 10000)
+    print("use random seed: {}".format(seed))
     random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)

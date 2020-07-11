@@ -11,8 +11,8 @@ def get_svhn(dataset_root, batch_size, train):
     pre_process = transforms.Compose([transforms.Resize(32),
                                       transforms.ToTensor(),
                                       transforms.Normalize(
-                                          mean=[0.5, 0.5, 0.5],
-                                          std=[0.5, 0.5, 0.5]
+                                          mean=[0.4376, 0.4438, 0.4729],
+                                          std=[0.1201, 0.1231, 0.1052]
                                       )])
 
     # datasets and data loader

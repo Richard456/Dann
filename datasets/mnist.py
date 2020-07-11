@@ -11,8 +11,8 @@ def get_mnist(dataset_root, batch_size, train):
     pre_process = transforms.Compose([transforms.Resize(28), # different img size settings for mnist(28), usps(16) and svhn(32).
                                       transforms.ToTensor(),
                                       transforms.Normalize(
-                                          mean=[0.1307],
-                                          std=[0.3015]
+                                          mean=[0.1307], # Mean of MNIST train data
+                                          std=[0.3015] # std of MNIST train data
                                       )])
 
     # datasets and data loader

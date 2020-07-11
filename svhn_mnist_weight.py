@@ -14,9 +14,8 @@ class Config(object):
     # params for path
     model_name = "svhn-mnist-weight"
     model_base = '/nobackup/yguo/pytorch-dann'
-    model_root = os.path.expanduser(os.path.join('~', 'Models', 'pytorch-DANN', model_name))
-    note = 'paper-structure'
-    model_root = os.path.join(model_base, model_name, note + '_' + datetime.datetime.now().strftime('%m%d_%H%M%S'))
+    model_root = os.path.expanduser(os.path.join('runs', model_name))
+    model_root = os.path.join(model_base, model_name, '_' + datetime.datetime.now().strftime('%m%d_%H%M%S'))
     os.makedirs(model_root)
     config = os.path.join(model_root, 'config.txt')
     finetune_flag = False

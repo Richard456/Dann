@@ -1,4 +1,5 @@
-"""Dataset setting and data loader for MNIST_M."""
+"""Dataset setting and data loader for MNIST_M. Download the dataset
+at http://yaroslav.ganin.net/ """
 
 import torch
 from torchvision import transforms
@@ -39,12 +40,14 @@ class GetLoader(data.Dataset):
 
 def get_mnistm_weight(dataset_root, batch_size, train, weights = None):
     """Get MNISTM datasets loader."""
-    # image pre-processing
+    # image pre-processing, each image from MNIST-m has shape 32x32
     pre_process = transforms.Compose([transforms.Resize(28),
                                      transforms.ToTensor(),
                                      transforms.Normalize(
-                                          mean=(0.5, 0.5, 0.5),
-                                          std=(0.5, 0.5, 0.5)
+                                          mean=[0.4582, 0.4623, 0.4085], 
+                                          # Mean of MNIST-m Train data
+                                          std=[0.1722, 0.1603, 0.1787]
+                                          # Std of MNIST-m Train data
                                      )])
  
     # datasets and data_loader

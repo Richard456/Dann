@@ -108,3 +108,5 @@ ENV/
 main_legacy.py
 test.ipynb
 *.durga
+*.pt 
+runs/*
