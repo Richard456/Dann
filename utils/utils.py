@@ -85,7 +85,9 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
 
 
 def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights = torch.tensor([])):
-    """Get data loader by name."""
+    """Get data loader by name. If len(weights) is 0 (default), no weighted 
+    sampling is performed.
+    """
     if name == "mnist":
         return get_mnist_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "mnistm":

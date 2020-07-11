@@ -5,15 +5,15 @@ import torch
 sys.path.append('../')
 from models.model import MNISTmodel, MNISTmodel_plain
 from core.train import train_dann
-from utils.utils import get_data_loader, init_model, init_random_seed
+from utils.utils import get_data_loader, init_model, init_random_seed, get_dataset_root
 from torch.utils.tensorboard import SummaryWriter
 
 
 class Config(object):
     # params for path
     model_name = "mnist-usps"
-    dataset_root = os.path.expanduser('/nobackup/yguo/dataset')
-    model_root = os.path.expanduser(os.path.join('~', 'Models', 'pytorch-DANN', model_name))
+    dataset_root = get_dataset_root()
+    model_root = os.path.expanduser(os.path.join('runs', model_name))
     finetune_flag = False
 
     # params for datasets and data loader

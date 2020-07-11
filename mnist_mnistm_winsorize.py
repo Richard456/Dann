@@ -87,7 +87,7 @@ tgt_data_loader_eval, _ = get_data_loader_weight(
 
 
 # load dann model
-dann = init_model(net=MNISTmodel(), restore=None)
+dann = init_model(net=MNISTmodel_plain(), restore=None)
 
 # train dann model
 print("Training dann model")

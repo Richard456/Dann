@@ -7,16 +7,13 @@ import torch
 sys.path.append('../')
 from models.model import SVHNmodel
 from core.train import train_dann
-from utils.utils import get_data_loader, init_model, init_random_seed
+from utils.utils import get_data_loader, init_model, init_random_seed, get_dataset_root
 
 
 class Config(object):
     # params for path
     model_name = "svhn-mnist"
-    model_base = '/nobackup/yguo/pytorch-dann'
-    model_root = os.path.expanduser(os.path.join('~', 'Models', 'pytorch-DANN', model_name))
-    note = 'paper-structure'
-    model_root = os.path.join(model_base, model_name, note + '_' + datetime.datetime.now().strftime('%m%d_%H%M%S'))
+    model_root = os.path.expanduser(os.path.join('runs', model_name))
     os.makedirs(model_root)
     config = os.path.join(model_root, 'config.txt')
     finetune_flag = False
@@ -28,13 +25,13 @@ class Config(object):
 
     # params for source dataset
     src_dataset = "svhn"
-    src_image_root = os.path.join('/nobackup/yguo/dataset', 'svhn')
+    src_image_root = get_dataset_root()
     src_model_trained = True
     src_classifier_restore = os.path.join(model_root, src_dataset + '-source-classifier-final.pt')
 
     # params for target dataset
     tgt_dataset = "mnist"
-    tgt_image_root = os.path.join('/nobackup/yguo/dataset', 'mnist')
+    tgt_image_root = get_dataset_root()
     tgt_model_trained = True
     dann_restore = os.path.join(model_root, src_dataset + '-' + tgt_dataset + '-dann-final.pt')
 

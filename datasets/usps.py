@@ -11,9 +11,10 @@ def get_usps(dataset_root, batch_size, train):
     pre_process = transforms.Compose([transforms.Resize(28),
                                       transforms.ToTensor(),
                                       transforms.Normalize(
-                                          mean=[0.5],
-                                          std=[0.5]
-                                      )])
+                                          mean=[0.2473], # Mean for USPS train data
+                                          std=[0.2665] # std for USPS train data
+                                      )
+                                      ])
 
     # datasets and data loader
     usps_dataset = datasets.USPS(root=os.path.join(dataset_root),
