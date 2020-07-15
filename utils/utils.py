@@ -20,6 +20,64 @@ from datasets.gtsrb import get_gtsrb
 def get_dataset_root(): 
     return '/nobackup/yguo/datasets'
 
+# data mode: 
+# 0. All one (uniform samplings)
+# 1. First half 0, second half 1
+# 2. First half 1, second half 0
+# 3. Overlapping support: 0-6 --> 3-9
+# 4. Mild random weight
+# 5. Strong random weight
+
+
+# run mode: 
+# 0. DANN
+# 1. source weighting + method 1 
+# 2. target weighting + method 2 
+# 3. winsorization + method 3
+
+
+def get_model_root(model_name, data_mode, run_mode):
+    data_mode = 'data{}'.format(data_mode)
+    run_mode = 'run{}'.format(run_mode)
+    model_root = os.path.expanduser(os.path.join('runs', model_name, data_mode, run_mode))
+    return model_root
+
+def get_data(mode): 
+    # Return a tuple of lists, where the first list corresponds to the source 
+    # weight, and the second part corresponds to the target weight
+    if mode == 0: 
+        source_weight = torch.tensor([])
+        target_weight = torch.ones(10)
+        return (source_weight, target_weight)
+    elif mode == 1: 
+        source_weight = torch.tensor([])
+        target_weight = torch.tensor([0,0,0,0,0,1,1,1,1,1])
+        return (source_weight, target_weight)
+    elif mode == 2:
+        source_weight = torch.tensor([])
+        target_weight = torch.tensor([1,1,1,1,1,0,0,0,0,0])
+        return (source_weight, target_weight)
+    elif mode == 3:
+        source_weight = torch.tensor([1,1,1,1,1,1,0,0,0,0])
+        target_weight = torch.tensor([0,0,0,0,1,1,1,1,1,1])
+    elif mode == 4: 
+        value = 0.25 
+        source_weight = torch.tensor([])
+        target_weight = torch.tensor(np.concatenate(
+            [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
+        return (source_weight, target_weight)
+    elif mode == 5: 
+        value = 0.0625
+        source_weight = torch.tensor([]) 
+        target_weight = torch.tensor(np.concatenate(
+            [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
+        return (source_weight, target_weight)
+    else: 
+        source_weight = torch.tensor([])
+        target_weight = torch.tensor([0,0,0,0,0,0,0,0,0,1])
+        return (source_weight, target_weight)
+        
+
 def make_cuda(tensor):
     """Use CUDA if it's available."""
     if torch.cuda.is_available():

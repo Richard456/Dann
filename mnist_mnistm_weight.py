@@ -5,92 +5,96 @@ import torch
 sys.path.append('../')
 from models.model import MNISTmodel, MNISTmodel_plain
 from core.train_weight import train_dann
-from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed, get_dataset_root
+from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed, get_dataset_root, get_model_root, get_data
 from torch.utils.tensorboard import SummaryWriter
 
+for data_mode, run_mode in zip(range(4), range(4)):
+    class Config(object):
+        # params for path
+        model_name = "mnist-mnistm-weight"
+        dataset_root = get_dataset_root()
+        model_root = get_model_root(model_name, data_mode, run_mode)
+        finetune_flag = False
 
+        # params for datasets and data loader
+        batch_size = 64
+        
+        # params for source dataset
+        src_dataset = "mnist"
+        src_model_trained = True
+        src_classifier_restore = os.path.join(model_root, src_dataset + '-source-classifier-final.pt')
+        class_num_src = 31
+        data_mode = data_mode 
+        run_mode = run_mode
+        
+        # params for target dataset
+        tgt_dataset = "mnistm"
+        tgt_model_trained = True
+        dann_restore = os.path.join(model_root, src_dataset + '-' + tgt_dataset + '-dann-final.pt')
 
-class Config(object):
-    # params for path
-    model_name = "mnist-mnistm-weight"
-    dataset_root = get_dataset_root()
-    model_root = os.path.expanduser(os.path.join('runs', model_name))
-    finetune_flag = False
+        # params for pretrain
+        num_epochs_src = 100
+        log_step_src = 10
+        save_step_src = 50
+        eval_step_src = 20
 
-    # params for datasets and data loader
-    batch_size = 64
+        # params for training dann
+        gpu_id = '0'
 
-    # params for source dataset
-    src_dataset = "mnist"
-    src_model_trained = True
-    src_classifier_restore = os.path.join(model_root, src_dataset + '-source-classifier-final.pt')
-    class_num_src = 31
+        ## for digit
+        num_epochs = 1
+        log_step = 20
+        save_step = 50
+        eval_step = 1
 
-    # params for target dataset
-    tgt_dataset = "mnistm"
-    tgt_model_trained = True
-    dann_restore = os.path.join(model_root, src_dataset + '-' + tgt_dataset + '-dann-final.pt')
+        ## for office
+        # num_epochs = 1000
+        # log_step = 10  # iters
+        # save_step = 500
+        # eval_step = 5  # epochs
+        lr_adjust_flag = 'simple'
+        src_only_flag = False
 
-    # params for pretrain
-    num_epochs_src = 100
-    log_step_src = 10
-    save_step_src = 50
-    eval_step_src = 20
+        manual_seed = 8888
+        alpha = 0
 
-    # params for training dann
-    gpu_id = '0'
+        # params for optimizing models
+        lr = 5e-4
+        momentum = 0
+        weight_decay = 0
 
-    ## for digit
-    num_epochs = 100
-    log_step = 20
-    save_step = 50
-    eval_step = 1
+    params = Config()
 
-    ## for office
-    # num_epochs = 1000
-    # log_step = 10  # iters
-    # save_step = 500
-    # eval_step = 5  # epochs
-    lr_adjust_flag = 'simple'
-    src_only_flag = False
+    logger = SummaryWriter(params.model_root)
 
-    manual_seed = 8888
-    alpha = 0
+    # init random seed
+    init_random_seed(params.manual_seed)
 
-    # params for optimizing models
-    lr = 5e-4
-    momentum = 0
-    weight_decay = 0
+    # init device
+    device = torch.device("cuda:" + params.gpu_id if torch.cuda.is_available() else "cpu")
 
-params = Config()
+    source_weight, target_weight = get_data(params.data_mode)
+     
+    # load dataset
+    if params.data_mode == 3:
+        src_data_loader, num_src_train = get_data_loader_weight(
+            params.src_dataset, params.src_image_root, params.batch_size, train=True, weights = source_weight)
+        src_data_loader_eval, _ = get_data_loader_weight(
+            params.src_dataset, params.src_image_root, params.batch_size, train=False, weights = source_weight)
+    else:
+        src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.dataset_root, params.batch_size, train=True)
+        src_data_loader_eval = get_data_loader(params.src_dataset, params.dataset_root, params.batch_size, train=False)
+    tgt_data_loader, num_tgt_train = get_data_loader_weight(
+        params.tgt_dataset, params.tgt_image_root, params.batch_size, train=True, weights = target_weight)
+    tgt_data_loader_eval, _ = get_data_loader_weight(
+        params.tgt_dataset, 
+        params.tgt_image_root, params.batch_size, train=False, weights = target_weight)
 
-logger = SummaryWriter(params.model_root)
+    # load dann model
+    dann = init_model(net=MNISTmodel(), restore=None)
 
-# init random seed
-init_random_seed(params.manual_seed)
-
-# init device
-device = torch.device("cuda:" + params.gpu_id if torch.cuda.is_available() else "cpu")
-
-
-WEIGHTS = torch.ones(10)
-# load dataset
-src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.dataset_root, params.batch_size, train=True)
-src_data_loader_eval = get_data_loader(params.src_dataset, params.dataset_root, params.batch_size, train=False)
-tgt_data_loader, num_tgt_train = get_data_loader_weight(
-    params.tgt_dataset, params.dataset_root, params.batch_size, train=True, sampler=torch.utils.data.sampler.WeightedRandomSampler(
-    WEIGHTS, 1))
-tgt_data_loader_eval, _ = get_data_loader_weight(
-    params.tgt_dataset, params.dataset_root, params.batch_size, train=False, sampler=torch.utils.data.sampler.WeightedRandomSampler(
-    WEIGHTS, 1))
-# Cannot use the same sampler for both training and testing dataset 
-
-
-# load dann model
-dann = init_model(net=MNISTmodel(), restore=None)
-
-# train dann model
-print("Training dann model")
-if not (dann.restored and params.dann_restore):
-    dann = train_dann(dann, params, src_data_loader, tgt_data_loader, 
-                      tgt_data_loader_eval, num_src_train, num_tgt_train, device, logger)
+    # train dann model
+    print("Training dann model")
+    if not (dann.restored and params.dann_restore):
+        dann = train_dann(dann, params, src_data_loader, tgt_data_loader, 
+                        tgt_data_loader_eval, num_src_train, num_tgt_train, device, logger)
