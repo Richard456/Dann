@@ -8,7 +8,7 @@ from core.train_weight import train_dann
 from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed, get_dataset_root, get_model_root, get_data
 from torch.utils.tensorboard import SummaryWriter
 
-for data_mode, run_mode in zip(range(4), range(4)):
+for data_mode, run_mode in zip([3,5,0], [0,1,2,3]):
     class Config(object):
         # params for path
         model_name = "mnist-mnistm-weight"
@@ -42,7 +42,7 @@ for data_mode, run_mode in zip(range(4), range(4)):
         gpu_id = '0'
 
         ## for digit
-        num_epochs = 1
+        num_epochs = 100
         log_step = 20
         save_step = 50
         eval_step = 1
@@ -73,22 +73,23 @@ for data_mode, run_mode in zip(range(4), range(4)):
     # init device
     device = torch.device("cuda:" + params.gpu_id if torch.cuda.is_available() else "cpu")
 
+    print(data_mode, run_mode)
     source_weight, target_weight = get_data(params.data_mode)
-     
+    print(source_weight, target_weight)
     # load dataset
     if params.data_mode == 3:
         src_data_loader, num_src_train = get_data_loader_weight(
-            params.src_dataset, params.src_image_root, params.batch_size, train=True, weights = source_weight)
+            params.src_dataset, params.dataset_root, params.batch_size, train=True, weights = source_weight)
         src_data_loader_eval, _ = get_data_loader_weight(
-            params.src_dataset, params.src_image_root, params.batch_size, train=False, weights = source_weight)
+            params.src_dataset, params.dataset_root, params.batch_size, train=False, weights = source_weight)
     else:
         src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.dataset_root, params.batch_size, train=True)
         src_data_loader_eval = get_data_loader(params.src_dataset, params.dataset_root, params.batch_size, train=False)
     tgt_data_loader, num_tgt_train = get_data_loader_weight(
-        params.tgt_dataset, params.tgt_image_root, params.batch_size, train=True, weights = target_weight)
+        params.tgt_dataset, params.dataset_root, params.batch_size, train=True, weights = target_weight)
     tgt_data_loader_eval, _ = get_data_loader_weight(
         params.tgt_dataset, 
-        params.tgt_image_root, params.batch_size, train=False, weights = target_weight)
+        params.dataset_root, params.batch_size, train=False, weights = target_weight)
 
     # load dann model
     dann = init_model(net=MNISTmodel(), restore=None)

@@ -74,7 +74,6 @@ def get_mnistm_weight(dataset_root, batch_size, train, weights):
             batch_size=batch_size,
             sampler=torch.utils.data.sampler.WeightedRandomSampler(
                 sample_weight,len(sample_weight)),
-            shuffle=True,
             num_workers=8)
     else: 
         mnistm_dataloader = torch.utils.data.DataLoader(

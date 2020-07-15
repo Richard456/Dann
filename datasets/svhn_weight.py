@@ -37,7 +37,6 @@ def get_svhn_weight(dataset_root, batch_size, train, weights):
         svhn_data_loader = torch.utils.data.DataLoader(
             dataset=svhn_dataset,
             batch_size=batch_size,
-            shuffle=True,
             sampler=torch.utils.data.sampler.WeightedRandomSampler(
                 sample_weight,len(sample_weight)),
             drop_last=True)

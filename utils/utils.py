@@ -58,8 +58,9 @@ def get_data(mode):
         target_weight = torch.tensor([1,1,1,1,1,0,0,0,0,0])
         return (source_weight, target_weight)
     elif mode == 3:
-        source_weight = torch.tensor([1,1,1,1,1,1,0,0,0,0])
-        target_weight = torch.tensor([0,0,0,0,1,1,1,1,1,1])
+        source_weight = torch.tensor([1,1,1,1,1,1,1,0,0,0])
+        target_weight = torch.tensor([0,0,0,1,1,1,1,1,1,1])
+        return (source_weight, target_weight)
     elif mode == 4: 
         value = 0.25 
         source_weight = torch.tensor([])
