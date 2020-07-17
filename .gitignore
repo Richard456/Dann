@@ -108,3 +108,4 @@ ENV/
 main_legacy.py
 test.ipynb
 *.pt 
+runs/*
