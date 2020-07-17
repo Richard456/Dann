@@ -9,6 +9,7 @@ from core.test import test
 from core.test_weight import test_weight
 from utils.utils import save_model
 import torch.backends.cudnn as cudnn
+import math
 cudnn.benchmark = True
 
 def weight(ten, a=10):
@@ -25,6 +26,9 @@ def normalized_weight(ten, a = 10, reverse = False, lipton = False):
     else: 
         w = weight(1-prob)
     return w
+
+def get_quantile(ten, a = 0.5):   
+    return torch.kthvalue(ten,math.floor(len(ten)*a))[0]  
 
 def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_eval, num_src, num_tgt, device, logger):
     """Train dann."""
@@ -102,9 +106,16 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             else: 
                 src_loss_domain = criterion(src_domain_output, label_src)
                 if params.soft: 
-                    weight_src[idx_src] = normalized_weight(src_domain_output.data).detach()
+                    if params.quantile: 
+                        weight_src[idx_src] = (torch.sort(src_domain_output.data[:,0])[1]).float().detach()
+                    else:   
+                        weight_src[idx_src] = normalized_weight(src_domain_output.data).detach()
                 else:
-                    weight_src[idx_src] = (src_domain_output.data[:,0] < params.threshold[0]).float()
+                    if params.quantile:
+                        weight_src[idx_src] = (src_domain_output.data[:,0] < \
+                        get_quantile(src_domain_output.data[:,0],params.threshold[0])).float().detach()
+                    else:
+                        weight_src[idx_src] = (src_domain_output.data[:,0] < params.threshold[0]).float().detach()
                 src_loss_domain = torch.dot(weight_src[idx_src], src_loss_domain
                                         )/ torch.sum(weight_src[idx_src])
             #train on target domain
@@ -114,10 +125,17 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             else: 
                 tgt_loss_domain = criterion(tgt_domain_output, label_tgt)
                 if params.soft: 
-                    weight_tgt[idx_tgt] = normalized_weight(
-                        tgt_domain_output.data, reverse = True).detach()
+                    if params.quantile: 
+                        weight_tgt[idx_tgt] = (torch.sort(tgt_domain_output.data[:,1])[1]).float().detach()
+                    else: 
+                        weight_tgt[idx_tgt] = normalized_weight(
+                            tgt_domain_output.data, reverse = True).detach()
                 else: 
-                    weight_tgt[idx_tgt] = (tgt_domain_output.data[:,1] < params.threshold[1]).float() 
+                    if params.quantile: 
+                        weight_tgt[idx_tgt] = (tgt_domain_output.data[:,1] < \
+                        get_quantile(tgt_domain_output.data[:,1],params.threshold[1])).float().detach()
+                    else: 
+                        weight_tgt[idx_tgt] = (tgt_domain_output.data[:,1] < params.threshold[1]).float().detach()
                 tgt_loss_domain = torch.dot(weight_tgt[idx_tgt], tgt_loss_domain
                                             ) / torch.sum(weight_tgt[idx_tgt])
 
