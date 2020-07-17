@@ -10,8 +10,8 @@ from utils.utils import get_data_loader, get_data_loader_weight, init_model, ini
 from torch.utils.tensorboard import SummaryWriter
 import shutil
 
-for data_mode in range(6): 
-    for run_mode in range(4): 
+for data_mode in [5]: 
+    for run_mode in [1,2,3]: 
         class Config(object):
             # params for path
             model_name = "mnist-mnistm-weight"
@@ -21,6 +21,10 @@ for data_mode in range(6):
             os.makedirs(model_root, exist_ok=True)
             config = os.path.join(model_root, 'config.txt')
             finetune_flag = False
+            data_mode = data_mode
+            run_mode = run_mode 
+            soft = True
+            quantile = False
             threshold = (0.5, 0.5)
 
             # params for datasets and data loader
