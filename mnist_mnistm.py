@@ -53,7 +53,7 @@ class Config(object):
     lr_adjust_flag = 'simple'
     src_only_flag = False
 
-    manual_seed = 8888
+    manual_seed = 0
     alpha = 0
 
     # params for optimizing models

@@ -11,7 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 import shutil
 
 for data_mode in [5]: 
-    for run_mode in [1,2,3]: 
+    for run_mode in [3,2,1,0]: 
         class Config(object):
             # params for path
             model_name = "mnist-mnistm-weight"
@@ -66,7 +66,7 @@ for data_mode in [5]:
             lr_adjust_flag = 'simple'
             src_only_flag = False
 
-            manual_seed = 8888
+            manual_seed = 0
             alpha = 0
 
             # params for optimizing models
