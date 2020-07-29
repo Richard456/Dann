@@ -14,7 +14,7 @@ class MNIST(datasets.MNIST):
         data, target = super().__getitem__(index)
         return data, target, index
     
-def get_mnist_weight(dataset_root, batch_size, train, weights):
+def get_mnist_weight(dataset_root, batch_size, train, subsample_size, weights):
     """Get MNIST datasets loader."""
     # image pre-processing
     pre_process = transforms.Compose([transforms.Resize(28), # different img size settings for mnist(28) and svhn(32).
@@ -30,14 +30,17 @@ def get_mnist_weight(dataset_root, batch_size, train, weights):
                                    transform=pre_process,
                                    download=True)
     num_sample = len(mnist_dataset)
-
     if len(weights) ==10: 
         sample_weight = torch.tensor([weights[label] for label in mnist_dataset.targets])
+        if subsample_size != 0: 
+            subsize = subsample_size
+        else: 
+            subsize = len(sample_weight)
         mnist_data_loader = torch.utils.data.DataLoader(
             dataset=mnist_dataset,
             batch_size=batch_size,
             sampler=torch.utils.data.sampler.WeightedRandomSampler(
-                sample_weight,len(sample_weight)),
+                sample_weight, subsize),
             drop_last=True,
             num_workers=8)
     else: 

@@ -33,7 +33,8 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
 
     if not params.finetune_flag:
         print("training non-office task")
-        optimizer = optim.SGD(model.parameters(), lr=params.lr, momentum=params.momentum, weight_decay=params.weight_decay)
+        # optimizer = optim.SGD(model.parameters(), lr=params.lr, momentum=params.momentum, weight_decay=params.weight_decay)
+        optimizer = optim.Adam(model.parameters(), lr=params.lr)
     else:
         print("training office task")
         parameter_list = [{
@@ -71,11 +72,11 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
                 params.num_epochs / len_dataloader
             alpha = 2. / (1. + np.exp(-10 * p)) - 1
 
-            if params.lr_adjust_flag == 'simple':
-                lr = adjust_learning_rate(optimizer, p)
-            else:
-                lr = adjust_learning_rate_office(optimizer, p)
-            logger.add_scalar('lr', lr, global_step)
+            # if params.lr_adjust_flag == 'simple':
+            #     lr = adjust_learning_rate(optimizer, p)
+            # else:
+            #     lr = adjust_learning_rate_office(optimizer, p)
+            # logger.add_scalar('lr', lr, global_step)
 
             # prepare domain label
             size_src = len(images_src)
@@ -90,7 +91,7 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
 
             # zero gradients for optimizer
             optimizer.zero_grad()
-
+            
             # train on source domain
             src_class_output, src_domain_output = model(input_data=images_src, alpha=alpha)
             src_loss_class = criterion0(src_class_output, class_src)
@@ -158,8 +159,8 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
 
         # eval model
         if ((epoch + 1) % params.eval_step == 0):
-            tgt_test_loss, tgt_acc, tgt_acc_domain = test_weight(model, tgt_data_loader_eval, device, flag='target')
             src_test_loss, src_acc, src_acc_domain = test_weight(model, src_data_loader, device, flag='source')
+            tgt_test_loss, tgt_acc, tgt_acc_domain = test_weight(model, tgt_data_loader_eval, device, flag='target')
             logger.add_scalar('src_test_loss', src_test_loss, global_step)
             logger.add_scalar('src_acc', src_acc, global_step)
             logger.add_scalar('src_acc_domain', src_acc_domain, global_step)

@@ -1,0 +1,2 @@
+gg
+it now prints to `help.text`

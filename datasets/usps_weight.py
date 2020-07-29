@@ -17,7 +17,7 @@ class USPS(datasets.USPS):
         data, target = super().__getitem__(index)
         return data, target, index
     
-def get_usps_weight(dataset_root, batch_size, train, weights):
+def get_usps_weight(dataset_root, batch_size, train, subsample_size,weights):
     """Get USPS datasets loader."""
     # image pre-processing
     pre_process = transforms.Compose([transforms.Resize(28),
@@ -33,14 +33,18 @@ def get_usps_weight(dataset_root, batch_size, train, weights):
                                    transform=pre_process,
                                    download=True)
     num_sample = len(usps_dataset)
-
+ 
     if len(weights) ==10: 
         sample_weight = torch.tensor([weights[label] for label in usps_dataset.targets])
+        if subsample_size != 0: 
+            subsize = subsample_size
+        else: 
+            subsize = len(sample_weight)        
         usps_data_loader = torch.utils.data.DataLoader(
             dataset=usps_dataset,
             batch_size=batch_size,
             sampler=torch.utils.data.sampler.WeightedRandomSampler(
-                sample_weight,len(sample_weight)),
+                sample_weight, subsize),
             drop_last=True,
             num_workers=8)
     else: 

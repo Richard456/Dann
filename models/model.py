@@ -96,6 +96,80 @@ class MNISTmodel(nn.Module):
         return class_output, domain_output
 
 
+class CNNModel(nn.Module):
+
+    def __init__(self):
+        super(CNNModel, self).__init__()
+        self.restored = False
+        self.feature = nn.Sequential()
+        self.feature.add_module('f_conv1', nn.Conv2d(3, 64, kernel_size=5))
+        self.feature.add_module('f_bn1', nn.BatchNorm2d(64))
+        self.feature.add_module('f_pool1', nn.MaxPool2d(2))
+        self.feature.add_module('f_relu1', nn.ReLU(True))
+        self.feature.add_module('f_conv2', nn.Conv2d(64, 50, kernel_size=5))
+        self.feature.add_module('f_bn2', nn.BatchNorm2d(50))
+        self.feature.add_module('f_drop1', nn.Dropout2d())
+        self.feature.add_module('f_pool2', nn.MaxPool2d(2))
+        self.feature.add_module('f_relu2', nn.ReLU(True))
+
+        self.classifier = nn.Sequential()
+        self.classifier.add_module('c_fc1', nn.Linear(50 * 4 * 4, 100))
+        self.classifier.add_module('c_bn1', nn.BatchNorm1d(100))
+        self.classifier.add_module('c_relu1', nn.ReLU(True))
+        self.classifier.add_module('c_drop1', nn.Dropout2d())
+        self.classifier.add_module('c_fc2', nn.Linear(100, 100))
+        self.classifier.add_module('c_bn2', nn.BatchNorm1d(100))
+        self.classifier.add_module('c_relu2', nn.ReLU(True))
+        self.classifier.add_module('c_fc3', nn.Linear(100, 10))
+        self.classifier.add_module('c_softmax', nn.LogSoftmax(dim=1))
+
+        self.discriminator = nn.Sequential()
+        self.discriminator.add_module('d_fc1', nn.Linear(50 * 4 * 4, 100))
+        self.discriminator.add_module('d_bn1', nn.BatchNorm1d(100))
+        self.discriminator.add_module('d_relu1', nn.ReLU(True))
+        self.discriminator.add_module('d_fc2', nn.Linear(100, 2))
+        self.discriminator.add_module('d_softmax', nn.LogSoftmax(dim=1))
+
+    def forward(self, input_data, alpha):
+        input_data = input_data.expand(input_data.data.shape[0], 3, 28, 28)
+        feature = self.feature(input_data)
+        feature = feature.view(-1, 50 * 4 * 4)
+        reverse_feature = ReverseLayerF.apply(feature, alpha)
+        class_output = self.classifier(feature)
+        domain_output = self.discriminator(reverse_feature)
+        return class_output, domain_output
+
+
+class LiptonCNNModel(nn.Module):
+    def __init__(self):
+        super(LiptonCNNModel, self).__init__()
+        self.restored = False
+        self.feature = nn.Sequential(
+                        nn.Conv2d(3, 6, kernel_size=5, padding=2), nn.Sigmoid(),
+                        nn.AvgPool2d(kernel_size=2, stride=2),
+                        nn.Conv2d(6, 16, kernel_size=5), nn.Sigmoid(),
+                        nn.AvgPool2d(kernel_size=2, stride=2),
+                        nn.Flatten(),
+                        nn.Linear(16*5*5, 120), nn.Sigmoid(),
+                        nn.Linear(120, 84), nn.Sigmoid())
+        self.classifier = nn.Sequential()
+        self.classifier.add_module('c_fc1', nn.Linear(84, 10))
+        self.classifier.add_module('c_softmax', nn.LogSoftmax(dim=1))
+
+        self.discriminator = nn.Sequential()
+        self.discriminator.add_module('d_fc1', nn.Linear(84, 500))
+        self.discriminator.add_module('d_fc2', nn.Linear(500,500))
+        self.discriminator.add_module('d_softmax', nn.LogSoftmax(dim=1))
+        
+    def forward(self, input_data, alpha):
+        input_data = input_data.expand(input_data.data.shape[0], 3, 28, 28)
+        feature = self.feature(input_data)
+        feature = feature.view(-1, 84)
+        reverse_feature = ReverseLayerF.apply(feature, alpha)
+        class_output = self.classifier(feature)
+        domain_output = self.discriminator(reverse_feature)
+        return class_output, domain_output
+
 class MNISTmodel_plain(nn.Module):
     """ MNIST architecture
     +Dropout2d, 84% ~ 73%

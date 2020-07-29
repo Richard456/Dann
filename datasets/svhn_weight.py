@@ -10,9 +10,10 @@ class SVHN(datasets.SVHN):
         data, target = super().__getitem__(index)
         return data, target, index
 
-def get_svhn_weight(dataset_root, batch_size, train, weights):
+def get_svhn_weight(params, train, weights):
     """Get SVHN datasets loader."""
     # image pre-processing
+    dataset_root, batch_size = params.dataset_root, params.batch_size
     pre_process = transforms.Compose([transforms.Resize(32),
                                       transforms.ToTensor(),
                                       transforms.Normalize(

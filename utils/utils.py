@@ -67,16 +67,16 @@ def get_data(mode):
         target_weight = torch.tensor(np.concatenate(
             [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
         return (source_weight, target_weight)
-    else: 
+    elif mode == 5:
         value = 0.0625
         source_weight = torch.tensor([]) 
         target_weight = torch.tensor(np.concatenate(
             [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
         return (source_weight, target_weight)
-    # else: 
-    #     source_weight = torch.tensor([])
-    #     target_weight = torch.tensor([0,0,0,0,0,0,0,0,0,1])
-    #     return (source_weight, target_weight)
+    else:
+        source_weight = torch.tensor([0.1,0.1,0.1,0.1,0.1, 1,1,1,1,1])
+        target_weight = torch.tensor([0,0,0,0,0,1,1,1,1,1])
+        return (source_weight, target_weight)
         
 
 def make_cuda(tensor):
@@ -143,18 +143,18 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
         return get_usps(dataset_root, batch_size, train)
 
 
-def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights = torch.tensor([])):
+def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights = torch.tensor([]), subsample_size = 0):
     """Get data loader by name. If len(weights) is 0 (default), no weighted 
     sampling is performed.
     """
     if name == "mnist":
-        return get_mnist_weight(dataset_root, batch_size, train, weights = weights)
+        return get_mnist_weight(dataset_root, batch_size, train, subsample_size = subsample_size ,weights = weights)
     elif name == "mnistm":
         return get_mnistm_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "svhn":
         return get_svhn_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "usps": 
-        return get_usps_weight(dataset_root, batch_size, train, weights = weights)
+        return get_usps_weight(dataset_root, batch_size, train, subsample_size = subsample_size, weights = weights)
     elif name == "amazon31":
         return get_office(dataset_root, batch_size, 'amazon')
     elif name == "webcam31":
