@@ -34,14 +34,14 @@ def get_usps_weight(dataset_root, batch_size, train, subsample_size, weights):
                                    download=True)
     num_sample = len(usps_dataset)
  
-    if len(weights) ==10: 
+    if len(weights) == 10: 
         sample_weight = torch.tensor([weights[label] for label in usps_dataset.targets])
         subsize = len(sample_weight)        
         if subsample_size != 0: 
             subsize = subsample_size
         print('usps')
         print("subsample size:{}".format(subsample_size))
-        print("subsize {}".format(len(sample_weight)))
+        print("subsize {}".format(subsize))
         usps_data_loader = torch.utils.data.DataLoader(
             dataset=usps_dataset,
             batch_size=batch_size,

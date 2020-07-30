@@ -52,8 +52,8 @@ for data_mode in [1]:
                     soft = False
                     quantile = False
                     optimal = False
-                    source_train_subsample_size = 0
-                    target_train_subsample_size = 0
+                    source_train_subsample_size = 2000
+                    target_train_subsample_size = 1800
 
 
                     # params for datasets and data loader
@@ -120,6 +120,7 @@ for data_mode in [1]:
 
                 print(data_mode, run_mode)
                 source_weight, target_weight = get_data(params.data_mode)
+                print(source_weight, target_weight)
                 if params.optimal: 
                     source_weight = target_weight
                     src_data_loader, num_src_train = get_data_loader_weight(
@@ -136,20 +137,17 @@ for data_mode in [1]:
                         params.src_dataset, params.dataset_root, params.batch_size, 
                         train=False, weights = source_weight)
                 else: 
+                    print("create source data loader")
+                    print(source_weight)
                     src_data_loader, num_src_train = get_data_loader_weight(
                         params.src_dataset, params.dataset_root, params.batch_size, 
-                        train=True, subsample_size = params.source_train_subsample_size)
-                    src_data_loader_eval = get_data_loader_weight(params.src_dataset, 
+                        train=True, subsample_size = params.source_train_subsample_size, weights = source_weight)
+                    src_data_loader_eval, _ = get_data_loader_weight(params.src_dataset, 
                                                            params.dataset_root, 
-                                                           params.batch_size, train=False)
-                    print('fsfdlskfj')
+                                                           params.batch_size, train=False, weights = source_weight)
                 tgt_data_loader, num_tgt_train = get_data_loader_weight(
                     params.tgt_dataset, params.dataset_root, params.batch_size, 
                     train=True, subsample_size = params.target_train_subsample_size, weights = target_weight)
-                print(params.source_train_subsample_size)
-                print(params.src_dataset)
-                print(params.target_train_subsample_size)
-                print(params.tgt_dataset)
                 tgt_data_loader_eval, _ = get_data_loader_weight(
                     params.tgt_dataset, params.dataset_root, params.batch_size,
                      train=False, weights = target_weight)

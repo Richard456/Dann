@@ -29,6 +29,8 @@ def get_mnist_weight(dataset_root, batch_size, train, subsample_size, weights):
                                    train=train,
                                    transform=pre_process,
                                    download=True)
+    print("loading source train data")
+    print(subsample_size)
     num_sample = len(mnist_dataset)
     if len(weights) ==10: 
         sample_weight = torch.tensor([weights[label] for label in mnist_dataset.targets])

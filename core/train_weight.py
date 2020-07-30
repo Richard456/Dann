@@ -159,7 +159,7 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, src_data_loader_
 
         # eval model
         if ((epoch + 1) % params.eval_step == 0):
-            src_test_loss, src_acc, src_acc_domain = test_weight(model, src_data_loader, device, flag='source')
+            src_test_loss, src_acc, src_acc_domain = test_weight(model, src_data_loader_eval, device, flag='source')
             tgt_test_loss, tgt_acc, tgt_acc_domain = test_weight(model, tgt_data_loader_eval, device, flag='target')
             logger.add_scalar('src_test_loss', src_test_loss, global_step)
             logger.add_scalar('src_acc', src_acc, global_step)

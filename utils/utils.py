@@ -46,15 +46,15 @@ def get_data(mode):
     # Return a tuple of lists, where the first list corresponds to the source 
     # weight, and the second part corresponds to the target weight
     if mode == 0: 
-        source_weight = torch.tensor([])
+        source_weight = torch.ones(10) 
         target_weight = torch.ones(10)
         return (source_weight, target_weight)
     elif mode == 1: 
-        source_weight = torch.tensor([])
-        target_weight = torch.tensor([0,0,0,0,0,1,1,1,1,1])
+        source_weight = torch.ones(10)
+        target_weight = torch.ones(10)
         return (source_weight, target_weight)
     elif mode == 2:
-        source_weight = torch.tensor([])
+        source_weight = torch.ones(10)
         target_weight = torch.tensor([1,1,1,1,1,0,0,0,0,0])
         return (source_weight, target_weight)
     elif mode == 3:
@@ -63,13 +63,13 @@ def get_data(mode):
         return (source_weight, target_weight)
     elif mode == 4: 
         value = 0.25 
-        source_weight = torch.tensor([])
+        source_weight = torch.ones(10)
         target_weight = torch.tensor(np.concatenate(
             [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
         return (source_weight, target_weight)
     elif mode == 5:
         value = 0.0625
-        source_weight = torch.tensor([]) 
+        source_weight = torch.ones(10)
         target_weight = torch.tensor(np.concatenate(
             [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
         return (source_weight, target_weight)
