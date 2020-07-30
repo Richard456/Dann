@@ -23,7 +23,7 @@ def lipton_weight(ten, beta = 4):
 def get_quantile(ten, a = 0.5):   
     return torch.kthvalue(ten,math.floor(len(ten)*a))[0]  
 
-def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_eval, num_src, num_tgt, device, logger):
+def train_dann(model, params, src_data_loader, tgt_data_loader, src_data_loader_eval, tgt_data_loader_eval, num_src, num_tgt, device, logger):
     """Train dann."""
     ####################
     # 1. setup network #

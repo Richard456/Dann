@@ -145,7 +145,7 @@ class LiptonCNNModel(nn.Module):
         super(LiptonCNNModel, self).__init__()
         self.restored = False
         self.feature = nn.Sequential(
-                        nn.Conv2d(3, 6, kernel_size=5, padding=2), nn.Sigmoid(),
+                        nn.Conv2d(3, 6, kernel_size=5, padding=2),nn.Sigmoid(),
                         nn.AvgPool2d(kernel_size=2, stride=2),
                         nn.Conv2d(6, 16, kernel_size=5), nn.Sigmoid(),
                         nn.AvgPool2d(kernel_size=2, stride=2),

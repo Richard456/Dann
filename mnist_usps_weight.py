@@ -13,8 +13,9 @@ import shutil
 from contextlib import redirect_stdout
 
 for data_mode in [1]: 
-    for run_mode in [1]: 
+    for run_mode in [0]: 
         for T in [0.6]: 
+            for train_size in [0]: 
                 model_name = "mnist-usps-weight"
                 dataset_root = get_dataset_root()
                 model_root = get_model_root(model_name, data_mode, run_mode)
@@ -51,8 +52,8 @@ for data_mode in [1]:
                     soft = False
                     quantile = False
                     optimal = False
-                    source_train_subsample_size = 2000
-                    target_train_subsample_size = 1800
+                    source_train_subsample_size = 0
+                    target_train_subsample_size = 0
 
 
                     # params for datasets and data loader
@@ -96,7 +97,7 @@ for data_mode in [1]:
                     alpha = 0
 
                     # params for optimizing models
-                    lr = 1e-3
+                    lr = 1e-4
                     momentum = 0
                     weight_decay = 0
                     
@@ -122,30 +123,45 @@ for data_mode in [1]:
                 if params.optimal: 
                     source_weight = target_weight
                     src_data_loader, num_src_train = get_data_loader_weight(
-                        params.src_dataset, params.dataset_root, params.batch_size, train=True, subsample_size = params.source_train_subsample_size, weights = source_weight)
+                        params.src_dataset, params.dataset_root, params.batch_size,
+                        train=True, subsample_size = params.source_train_subsample_size, weights = source_weight)
                     src_data_loader_eval, _ = get_data_loader_weight(
-                        params.src_dataset, params.dataset_root, params.batch_size, train=False, weights = source_weight)
+                        params.src_dataset, params.dataset_root, params.batch_size, 
+                        train=False, weights = source_weight)
                 if params.data_mode in [3,6]: 
                     src_data_loader, num_src_train = get_data_loader_weight(
-                        params.src_dataset, params.dataset_root, params.batch_size, train=True, subsample_size = params.source_train_subsample_size, weights = source_weight)
+                        params.src_dataset, params.dataset_root, params.batch_size,
+                        train=True, subsample_size = params.source_train_subsample_size, weights = source_weight)
                     src_data_loader_eval, _ = get_data_loader_weight(
-                        params.src_dataset, params.dataset_root, params.batch_size, train=False, weights = source_weight)
+                        params.src_dataset, params.dataset_root, params.batch_size, 
+                        train=False, weights = source_weight)
                 else: 
-                    src_data_loader, num_src_train = get_data_loader_weight(params.src_dataset, params.dataset_root, params.batch_size, train=True, subsample_size = params.source_train_subsample_size)
-                    src_data_loader_eval = get_data_loader(params.src_dataset, params.dataset_root, params.batch_size, train=False)
+                    src_data_loader, num_src_train = get_data_loader_weight(
+                        params.src_dataset, params.dataset_root, params.batch_size, 
+                        train=True, subsample_size = params.source_train_subsample_size)
+                    src_data_loader_eval = get_data_loader_weight(params.src_dataset, 
+                                                           params.dataset_root, 
+                                                           params.batch_size, train=False)
+                    print('fsfdlskfj')
                 tgt_data_loader, num_tgt_train = get_data_loader_weight(
-                    params.tgt_dataset, params.dataset_root, params.batch_size, train=True, subsample_size = params.target_train_subsample_size, weights = target_weight)
+                    params.tgt_dataset, params.dataset_root, params.batch_size, 
+                    train=True, subsample_size = params.target_train_subsample_size, weights = target_weight)
+                print(params.source_train_subsample_size)
+                print(params.src_dataset)
+                print(params.target_train_subsample_size)
+                print(params.tgt_dataset)
                 tgt_data_loader_eval, _ = get_data_loader_weight(
-                    params.tgt_dataset, params.dataset_root, params.batch_size, train=False, weights = target_weight)
+                    params.tgt_dataset, params.dataset_root, params.batch_size,
+                     train=False, weights = target_weight)
                 # Cannot use the same sampler for both training and testing dataset 
                 print(source_weight, target_weight)
 
 
                 # load dann model
-                dann = init_model(net=LiptonCNNModel(), restore=None).to(device)
+                dann = init_model(net=MNISTmodel(), restore=None).to(device)
 
                 # train dann model
                 print("Training dann model")
                 if not (dann.restored and params.dann_restore):
-                    dann = train_dann(dann, params, src_data_loader, tgt_data_loader, 
+                    dann = train_dann(dann, params, src_data_loader, tgt_data_loader,src_data_loader_eval,
                                     tgt_data_loader_eval, num_src_train, num_tgt_train, device, logger)
