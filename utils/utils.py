@@ -18,28 +18,23 @@ from datasets.synsigns import get_synsigns
 from datasets.gtsrb import get_gtsrb
 
 def get_dataset_root(): 
-    return '/nobackup/yguo/datasets'
+    return '/nobackup/richard/dataset'
 
 # data mode: 
 # 0. All one (uniform samplings)
-# 1. First half 0, second half 1
-# 2. First half 1, second half 0
-# 3. Overlapping support: 0-7 --> 2-9
-# 4. Mild random weight
-# 5. Strong random weight
+# 1. First half 1, second half 0
+# 2. First half 0, second half 1
+# 3. Mild random weight
+# 4. Strong random weight
 
 
 # run mode: 
-# 0. DANN
-# 1. source weighting + method 1 
-# 2. target weighting + method 2 
-# 3. winsorization + method 3
+# 0. DANN vanilla
+# 1.calibrating
 
 
-def get_model_root(model_name, data_mode, run_mode):
-    data_mode = 'data{}'.format(data_mode)
-    run_mode = 'run{}'.format(run_mode)
-    model_root = os.path.expanduser(os.path.join('runs', model_name, data_mode, run_mode))
+def get_model_root(model_name, data_mode, run_mode, sample_size, num_epochs):
+    model_root = os.path.expanduser(os.path.join('runs', model_name, data_mode, run_mode,sample_size,num_epochs))
     return model_root
 
 def get_data(mode): 
@@ -51,31 +46,23 @@ def get_data(mode):
         return (source_weight, target_weight)
     elif mode == 1: 
         source_weight = torch.ones(10)
-        target_weight = torch.ones(10)
+        target_weight = torch.tensor([1,1,1,1,1,0,0,0,0,0])
         return (source_weight, target_weight)
     elif mode == 2:
         source_weight = torch.ones(10)
-        target_weight = torch.tensor([1,1,1,1,1,0,0,0,0,0])
+        target_weight = torch.tensor([0,0,0,0,0,1,1,1,1,1])
         return (source_weight, target_weight)
-    elif mode == 3:
-        source_weight = torch.tensor([1,1,1,1,1,1,1,1,0,0])
-        target_weight = torch.tensor([0,0,1,1,1,1,1,1,1,1])
-        return (source_weight, target_weight)
-    elif mode == 4: 
+    elif mode == 3: 
         value = 0.25 
         source_weight = torch.ones(10)
         target_weight = torch.tensor(np.concatenate(
             [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
         return (source_weight, target_weight)
-    elif mode == 5:
+    else:
         value = 0.0625
         source_weight = torch.ones(10)
         target_weight = torch.tensor(np.concatenate(
             [[value], np.random.uniform(value, 1-value, 8), [1-value]]))
-        return (source_weight, target_weight)
-    else:
-        source_weight = torch.tensor([0.1,0.1,0.1,0.1,0.1, 1,1,1,1,1])
-        target_weight = torch.tensor([0,0,0,0,0,1,1,1,1,1])
         return (source_weight, target_weight)
         
 
@@ -150,7 +137,7 @@ def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights =
     if name == "mnist":
         return get_mnist_weight(dataset_root, batch_size, train, subsample_size = subsample_size ,weights = weights)
     elif name == "mnistm":
-        return get_mnistm_weight(dataset_root, batch_size, train, weights = weights)
+        return get_mnistm_weight(dataset_root, batch_size, train,subsample_size=subsample_size, weights = weights)
     elif name == "svhn":
         return get_svhn_weight(dataset_root, batch_size, train, weights = weights)
     elif name == "usps": 
@@ -174,12 +161,12 @@ def init_model(net, restore):
     # net.apply(init_weights)
 
     # restore model weights
-    if restore is not None and os.path.exists(restore):
+    if restore is not None:
         net.load_state_dict(torch.load(restore))
         net.restored = True
         print("Restore model from: {}".format(os.path.abspath(restore)))
     else:
-        print("No trained model, train from scratch.")
+         print("No trained model, train from scratch.")
 
     # check if cuda is available
     if torch.cuda.is_available():

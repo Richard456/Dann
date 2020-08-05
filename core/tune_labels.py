@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 import math
 cudnn.benchmark = True
 
-def train_dann(model, params, src_data_loader, tgt_data_loader,src_data_loader_eval, tgt_data_loader_eval, weights_offset, num_src, num_tgt, device, logger):
+def tune_labels(model, params, tgt_data_loader, tgt_data_loader_eval, num_tgt, device, logger):
     """Train dann."""
     ####################
     # 1. setup network #
@@ -41,9 +41,6 @@ def train_dann(model, params, src_data_loader, tgt_data_loader,src_data_loader_e
         }]
         optimizer = optim.SGD(parameter_list, lr=0.01, momentum=0.9)
 
-    # perform weighing
-    class_weights = torch.FloatTensor(weights_offset).to(device)
-    criterion = nn.CrossEntropyLoss(weight=class_weights)
     criterion0 = nn.CrossEntropyLoss()
 
     ####################
@@ -54,9 +51,9 @@ def train_dann(model, params, src_data_loader, tgt_data_loader,src_data_loader_e
         # set train state for Dropout and BN layers
         model.train()
         # zip source and target data pair
-        len_dataloader = min(len(src_data_loader), len(tgt_data_loader))
-        data_zip = enumerate(zip(src_data_loader, tgt_data_loader))
-        for step, ((images_src, class_src, idx_src), (images_tgt, _, idx_tgt)) in data_zip:
+        len_dataloader = len(tgt_data_loader)
+        dataset = enumerate(tgt_data_loader)
+        for step, (images_tgt, class_tgt, _) in dataset:
 
             p = float(step + epoch * len_dataloader) / \
                 params.num_epochs / len_dataloader
@@ -68,77 +65,48 @@ def train_dann(model, params, src_data_loader, tgt_data_loader,src_data_loader_e
             #     lr = adjust_learning_rate_office(optimizer, p)
             # logger.add_scalar('lr', lr, global_step)
 
-            # prepare domain label
-            size_src = len(images_src)
-            size_tgt = len(images_tgt)
-            label_src = torch.zeros(size_src).long().to(device)  # source 0
-            label_tgt = torch.ones(size_tgt).long().to(device)  # target 1
 
             # make images variable
-            class_src = class_src.to(device)
-            images_src = images_src.to(device)
+            class_tgt = class_tgt.to(device)
             images_tgt = images_tgt.to(device)
 
             # zero gradients for optimizer
             optimizer.zero_grad()
             
-            # train on source domain
-            src_class_output, src_domain_output = model(input_data=images_src, alpha=alpha)
+            # tune on target domain
+            tgt_class_output,_= model(input_data=images_tgt, alpha=alpha)
 
             # classification loss
-            if params.run_mode ==0:
-                src_loss_class = criterion0(src_class_output, class_src)
-            else:
-                src_loss_class = criterion(src_class_output, class_src)
+            tgt_loss_class = criterion0(tgt_class_output, class_tgt)
             
-            # source domain loss
-            src_loss_domain = criterion0(src_domain_output, label_src)
-
-            #train on target domain
-            _, tgt_domain_output = model(input_data=images_tgt, alpha=alpha) 
-            # target domain loss        
-            tgt_loss_domain = criterion0(tgt_domain_output, label_tgt)
-
-            # total loss
-            loss = src_loss_class + src_loss_domain + tgt_loss_domain
-
             # optimize dann
-            loss.backward()
+            tgt_loss_class.backward()
             optimizer.step()
-
+            
             global_step += 1
 
             # print step info
-            logger.add_scalar('src_loss_class', src_loss_class.item(), global_step)
-            logger.add_scalar('src_loss_domain', src_loss_domain.item(), global_step)
-            logger.add_scalar('tgt_loss_domain', tgt_loss_domain.item(), global_step)
-            logger.add_scalar('loss', loss.item(), global_step)
+            logger.add_scalar('tgt_loss_class', tgt_loss_class.item(), global_step)
 
             if ((step + 1) % params.log_step == 0):
                 print(
-                    "Epoch [{:4d}/{}] Step [{:2d}/{}]: src_loss_class={:.6f}, src_loss_domain={:.6f}, tgt_loss_domain={:.6f}, loss={:.6f}"
-                    .format(epoch + 1, params.num_epochs, step + 1, len_dataloader, src_loss_class.data.item(),
-                            src_loss_domain.data.item(), tgt_loss_domain.data.item(), loss.data.item()))
+                    "Epoch [{:4d}/{}] Step [{:2d}/{}]: tgt_loss_class={:.6f}"
+                    .format(epoch + 1, params.num_epochs, step + 1, len_dataloader, tgt_loss_class.data.item()))
 
         # eval model
         if ((epoch + 1) % params.eval_step == 0):
-            src_test_loss, src_acc, src_acc_domain = test_weight(model, src_data_loader_eval, device, flag='source')
-            tgt_test_loss, tgt_acc, tgt_acc_domain = test_weight(model, tgt_data_loader_eval, device, flag='target')
-            logger.add_scalar('src_test_loss', src_test_loss, global_step)
-            logger.add_scalar('src_acc', src_acc, global_step)
-            logger.add_scalar('src_acc_domain', src_acc_domain, global_step)
+            tgt_test_loss, tgt_acc, _ = test_weight(model, tgt_data_loader_eval, device, flag='target')
             logger.add_scalar('tgt_test_loss', tgt_test_loss, global_step)
             logger.add_scalar('tgt_acc', tgt_acc, global_step)
-            logger.add_scalar('tgt_acc_domain', tgt_acc_domain, global_step)
 
 
         # save model parameters
         if ((epoch + 1) % params.save_step == 0):
             save_model(model, params.model_root,
-                       params.src_dataset + '-' + params.tgt_dataset + "-dann-{}.pt".format(epoch + 1))
+                       params.src_dataset + '-' + params.tgt_dataset +"tuning"+ "-dann-{}.pt".format(epoch + 1))
 
     # save final model
-    save_model(model, params.model_root, params.src_dataset + '-' + params.tgt_dataset + "-dann-final.pt")
+    save_model(model, params.model_root, params.src_dataset + '-' + params.tgt_dataset + " tuning" + "-dann-final.pt")
 
     return model
 

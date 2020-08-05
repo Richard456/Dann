@@ -41,7 +41,7 @@ class GetLoader(data.Dataset):
         return torch.tensor([int(label) for label in self.img_labels])
 
 
-def get_mnistm_weight(dataset_root, batch_size, train, weights):
+def get_mnistm_weight(dataset_root, batch_size, train, subsample_size ,weights):
     """Get MNISTM datasets loader."""
     # image pre-processing, each image from MNIST-m has shape 32x32
     pre_process = transforms.Compose([transforms.Resize(28),
@@ -69,11 +69,14 @@ def get_mnistm_weight(dataset_root, batch_size, train, weights):
     num_sample = len(mnistm_dataset)
     if len(weights) == 10: 
         sample_weight = torch.tensor([weights[label] for label in mnistm_dataset.get_labels()])
+        train_size=len(sample_weight)
+        if subsample_size!=0:
+            train_size=subsample_size
         mnistm_dataloader = torch.utils.data.DataLoader(
             dataset=mnistm_dataset,
             batch_size=batch_size,
             sampler=torch.utils.data.sampler.WeightedRandomSampler(
-                sample_weight,len(sample_weight)),
+                sample_weight,train_size),
             num_workers=8)
     else: 
         mnistm_dataloader = torch.utils.data.DataLoader(

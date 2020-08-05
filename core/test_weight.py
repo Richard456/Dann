@@ -15,7 +15,7 @@ def test_weight(model, data_loader, device, flag):
     # set loss function
     criterion = nn.CrossEntropyLoss()
     # evaluate network
-    for (images, labels, _) in data_loader:
+    for images, labels, _ in data_loader:
         images = images.to(device)
         labels = labels.to(device)  #labels = labels.squeeze(1)
         size = len(labels)
