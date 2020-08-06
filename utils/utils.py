@@ -18,7 +18,7 @@ from datasets.synsigns import get_synsigns
 from datasets.gtsrb import get_gtsrb
 
 def get_dataset_root(): 
-    return '/nobackup/richard/dataset'
+    return '/nobackup/yguo/datasets'
 
 # data mode: 
 # 0. All one (uniform samplings)

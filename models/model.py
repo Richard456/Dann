@@ -376,3 +376,134 @@ class AlexModel(nn.Module):
         domain_output = self.discriminator(reverse_bottleneck)
 
         return class_output, domain_output
+
+class SALADModel(nn.Module):
+    """ SALAD architecture (deep convolutional)
+    """
+
+    def __init__(self):
+        super(SALADModel, self).__init__()
+        self.restored = False
+        self.feature = nn.Sequential(
+            nn.Conv2d(3, 128, (3, 3), padding=1), 
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(128, 128, (3, 3), padding=1), 
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.Conv2d(128, 128, (3, 3), padding=1),
+            nn.BatchNorm2d(128), 
+            nn.ReLU(), 
+            nn.MaxPool2d((2,2)), 
+            nn.Dropout(), 
+            
+            nn.Conv2d(128, 256, (3, 3), padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.Conv2d(256, 256, (3, 3), padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.Conv2d(256, 256, (3, 3), padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.MaxPool2d((2,2)), 
+            nn.Dropout(),
+            
+            nn.Conv2d(256, 512, (3, 3), padding=0),
+            nn.BatchNorm2d(512),  
+            nn.ReLU(),
+            nn.Conv2d(512, 256, (1, 1), padding=1),
+            nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.Conv2d(256, 128, (1, 1), padding=1),
+            nn.BatchNorm2d(128), 
+            nn.AvgPool2d(6)
+        )
+
+
+        self.classifier = nn.Sequential(
+            nn.Linear(128, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(inplace=True),
+            nn.Linear(64, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(inplace=True),
+            nn.Linear(64, 10),
+        )
+
+        self.discriminator = nn.Sequential(
+            nn.Linear(128, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(inplace=True),
+            nn.Linear(64, 2),
+        )
+
+    def forward(self, input_data, alpha = 1.0):
+        input_data = input_data.expand(input_data.data.shape[0], 3, 28, 28)
+        feature = self.feature(input_data)
+        feature = feature.view(-1, 128)
+        reverse_feature = ReverseLayerF.apply(feature, alpha)
+        class_output = self.classifier(feature)
+        domain_output = self.discriminator(reverse_feature)
+
+        return class_output, domain_output
+
+# class DCGANModel(nn.Module):
+#     """ SALAD architecture (deep convolutional)
+#     """
+
+#     def __init__(self):
+#         super(SALADModel, self).__init__()
+#         ngf = 64 
+#         self.feature = nn.Sequential(
+#             nn.ConvTranspose2d( nz, ngf * 8, 4, 1, 0, bias=False),
+#             nn.BatchNorm2d(ngf * 8),
+#             nn.ReLU(True),
+#             # state size. (ngf*8) x 4 x 4
+#             nn.ConvTranspose2d(ngf * 8, ngf * 4, 4, 2, 1, bias=False),
+#             nn.BatchNorm2d(ngf * 4),
+#             nn.ReLU(True),
+#             # state size. (ngf*4) x 8 x 8
+#             nn.ConvTranspose2d( ngf * 4, ngf * 2, 4, 2, 1, bias=False),
+#             nn.BatchNorm2d(ngf * 2),
+#             nn.ReLU(True),
+#             # state size. (ngf*2) x 16 x 16
+#             nn.ConvTranspose2d( ngf * 2, ngf, 4, 2, 1, bias=False),
+#             nn.BatchNorm2d(ngf),
+#             nn.ReLU(True),
+#             # state size. (ngf) x 32 x 32
+#             nn.ConvTranspose2d( ngf, nc, 4, 2, 1, bias=False),
+ 
+            
+#         )
+
+#         self.classifier = nn.Sequential(
+#             nn.Linear(256 * 5 * 5, 512),
+#             nn.BatchNorm1d(512),
+#             nn.ReLU(),
+#             nn.Dropout(),
+#             nn.Linear(512, 43),
+#         )
+
+#         self.discriminator = nn.Sequential(
+#             nn.Linear(256 * 5 * 5, 1024),
+#             nn.BatchNorm1d(1024),
+#             nn.ReLU(),
+#             nn.Linear(1024, 1024),
+#             nn.BatchNorm1d(1024),
+#             nn.ReLU(),
+#             nn.Dropout(),
+#             nn.Linear(1024, 2),
+#         )
+
+#     def forward(self, input_data, alpha = 1.0):
+#         input_data = input_data.expand(input_data.data.shape[0], 3, 40, 40)
+#         feature = self.feature(input_data)
+#         feature = feature.view(-1, 256 * 5 * 5)
+#         reverse_feature = ReverseLayerF.apply(feature, alpha)
+#         class_output = self.classifier(feature)
+#         domain_output = self.discriminator(reverse_feature)
+
+#         return class_output, domain_output
+
+

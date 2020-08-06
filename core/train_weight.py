@@ -45,6 +45,7 @@ def train_dann(model, params, src_data_loader, tgt_data_loader,src_data_loader_e
     class_weights = torch.FloatTensor(weights_offset).to(device)
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     criterion0 = nn.CrossEntropyLoss()
+    criterion1 = nn.CrossEntropyLoss(reduction = 'none')
 
     ####################
     # 2. train network #
@@ -86,14 +87,14 @@ def train_dann(model, params, src_data_loader, tgt_data_loader,src_data_loader_e
             src_class_output, src_domain_output = model(input_data=images_src, alpha=alpha)
 
             # classification loss
-            if params.run_mode ==0:
+            if params.run_mode == 0:
                 src_loss_class = criterion0(src_class_output, class_src)
             else:
                 src_loss_class = criterion(src_class_output, class_src)
             
             # source domain loss
-            src_loss_domain = criterion0(src_domain_output, label_src)
-
+            src_loss_domain = torch.dot(criterion1(src_domain_output, label_src),
+            torch.tensor([weights_offset[label] for label in class_src]).cuda().to(device).float())
             #train on target domain
             _, tgt_domain_output = model(input_data=images_tgt, alpha=alpha) 
             # target domain loss        
