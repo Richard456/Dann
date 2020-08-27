@@ -7,6 +7,7 @@ import torch.backends.cudnn as cudnn
 from datasets import get_mnist, get_mnistm, get_svhn
 from datasets.usps import get_usps
 from datasets.cifar10 import get_cifar10
+from datasets.cifar10_c import get_cifar10_c
 from datasets.mnist_weight import get_mnist_weight
 from datasets.mnistm_weight import get_mnistm_weight
 from datasets.svhn_weight import get_svhn_weight
@@ -107,7 +108,7 @@ def init_random_seed(seed):
 
 
 
-def get_data_loader(name, dataset_root, batch_size, train=True):
+def get_data_loader(name, dataset_root, batch_size, train=True,noise_type=None):
     """Get data loader by name."""
     if name == "mnist":
         return get_mnist(dataset_root, batch_size, train)
@@ -131,6 +132,8 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
         return get_usps(dataset_root, batch_size, train)
     elif name== "cifar10":
         return get_cifar10(dataset_root, batch_size, train)
+    elif name=="cifar10_c":
+        return get_cifar10_c(dataset_root,batch_size,train,noise_type)
 
 
 def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights = torch.tensor([]), subsample_size = 0):

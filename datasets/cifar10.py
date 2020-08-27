@@ -1,5 +1,3 @@
-"""Dataset setting and data loader for MNIST."""
-
 
 import torch
 from torchvision import datasets, transforms

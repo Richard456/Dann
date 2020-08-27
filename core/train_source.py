@@ -5,13 +5,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from core.test import test
-from core.test_weight import test_weight
 from utils.utils import save_model
 import torch.backends.cudnn as cudnn
 import math
 cudnn.benchmark = True
 
-def train_mnist(model, params, src_data_loader, src_data_loader_eval, num_src, device, logger):
+def train_source(model, params, src_data_loader, src_data_loader_eval, device, logger):
     """Train dann."""
     ####################
     # 1. setup network #
@@ -52,7 +51,7 @@ def train_mnist(model, params, src_data_loader, src_data_loader_eval, num_src, d
         # zip source and target data pair
         len_dataloader = len(src_data_loader)
         dataset = enumerate(src_data_loader)
-        for step, (images_src, class_src, _) in dataset:
+        for step, (images_src, class_src) in dataset:
 
             p = float(step + epoch * len_dataloader) / \
                 params.num_epochs / len_dataloader
@@ -94,18 +93,17 @@ def train_mnist(model, params, src_data_loader, src_data_loader_eval, num_src, d
 
         # eval model
         if ((epoch + 1) % params.eval_step == 0):
-            src_test_loss, src_acc, _ = test_weight(model, src_data_loader_eval, device, flag='source')
-            logger.add_scalar('src_test_loss', src_test_loss, global_step)
+            _, src_acc, _ = test(model, src_data_loader, device, flag='source')
             logger.add_scalar('src_acc', src_acc, global_step)
 
 
         # save model parameters
         if ((epoch + 1) % params.save_step == 0):
             save_model(model, params.model_root,
-                       params.src_dataset + '_'  +"training"+ "-mnist-{}.pt".format(epoch + 1))
+                       params.src_dataset + '_'  +"training"+ "-{}-{}.pt".format(params.src_dataset,(epoch + 1)))
 
     # save final model
-    save_model(model, params.model_root, params.src_dataset + '_' + " training" + "-mnist-final.pt")
+    save_model(model, params.model_root, params.src_dataset + '_' + " training" + "-{}-final.pt".format(params.src_dataset))
 
     return model
 
