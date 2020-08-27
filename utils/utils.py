@@ -6,6 +6,7 @@ import torch.backends.cudnn as cudnn
 
 from datasets import get_mnist, get_mnistm, get_svhn
 from datasets.usps import get_usps
+from datasets.cifar10 import get_cifar10
 from datasets.mnist_weight import get_mnist_weight
 from datasets.mnistm_weight import get_mnistm_weight
 from datasets.svhn_weight import get_svhn_weight
@@ -18,7 +19,7 @@ from datasets.synsigns import get_synsigns
 from datasets.gtsrb import get_gtsrb
 
 def get_dataset_root(): 
-    return '/nobackup/yguo/datasets'
+    return '/nobackup/richard/dataset'
 
 # data mode: 
 # 0. All one (uniform samplings)
@@ -128,6 +129,8 @@ def get_data_loader(name, dataset_root, batch_size, train=True):
         return get_gtsrb(dataset_root, batch_size, train)
     elif name == "usps": 
         return get_usps(dataset_root, batch_size, train)
+    elif name== "cifar10":
+        return get_cifar10(dataset_root, batch_size, train)
 
 
 def get_data_loader_weight(name, dataset_root, batch_size, train=True, weights = torch.tensor([]), subsample_size = 0):

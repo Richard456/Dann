@@ -15,14 +15,15 @@ import numpy as np
 from contextlib import redirect_stdout
 
 data_mode_verbosity={
+    0: "MNIST->USPS",
     1: "MNIST->USPS[0-4]",
     2: "MNIST->USPS[5-9]",
     3: "MNIST->USPS with mild shift",
     4: "MNIST->USPS with strong shift"
 }
 
-for data_mode in [1,2]:
-    model_name = "mnist-usps-tune"
+for data_mode in [0,1,2]:
+    model_name = "mnist-usps-tune-source-only"
     dataset_root = get_dataset_root()
     model_root = os.path.expanduser(os.path.join('runs', model_name, data_mode_verbosity[data_mode]))
     model_root = os.path.join(model_root, datetime.datetime.now().strftime('%m%d_%H%M%S'))
@@ -45,7 +46,6 @@ for data_mode in [1,2]:
     sys.stdout = Logger()
     class Config(object):
         # params for path
-        model_name = "mnist-usps-tune"
         dataset_root = dataset_root
         model_root = model_root
         config = os.path.join(model_root, 'config.txt')
@@ -62,12 +62,10 @@ for data_mode in [1,2]:
         class_num_src = 31
 
         # params for target dataset
-        restore_root=os.path.expanduser(os.path.join('runs', 'mnist-usps-weight'))
+        restore_root=os.path.expanduser(os.path.join('runs', 'mnist-source-only'))
         tgt_dataset = "usps"
-        if data_mode==1:
-            dann_restore = os.path.join(restore_root,'MNIST->USPS[0-4]/vanilla/50 samples/100 epochs/0804_133004/mnist-usps-dann-final.pt')
-        else:
-            dann_restore = os.path.join(restore_root,'MNIST->USPS[5-9]/vanilla/50 samples/100 epochs/0804_135409/mnist-usps-dann-final.pt')
+        dann_restore = os.path.join(restore_root,'0807_201604/mnist_ training-mnist-final.pt')
+        
         # params for pretrain
         num_epochs_src = 100
         log_step_src = 10
@@ -75,7 +73,7 @@ for data_mode in [1,2]:
         eval_step_src = 20
 
         # params for training dann
-        gpu_id = '3'
+        gpu_id = '0'
 
         ## for digit
         num_epochs = 560
@@ -115,8 +113,13 @@ for data_mode in [1,2]:
     # init device
     device = torch.device("cuda:" + params.gpu_id)
 
-    # 0-4
-    _, target_weight = get_data(params.data_mode)
+    
+    source_weight, target_weight = get_data(params.data_mode)
+
+    src_data_loader, num_src_train = get_data_loader_weight(
+        params.src_dataset, params.dataset_root, params.batch_size, train=True, weights = source_weight)
+    src_data_loader_eval, _ = get_data_loader_weight(
+        params.src_dataset, params.dataset_root, params.batch_size, train=False, weights = source_weight)
 
     tgt_data_loader, num_tgt_train = get_data_loader_weight(
         params.tgt_dataset, params.dataset_root, params.batch_size, 
@@ -138,5 +141,5 @@ for data_mode in [1,2]:
 
 
     # train dann model
-    print("Tuning dann model")
-    dann = tune_labels(dann, params,  tgt_data_loader, tgt_data_loader_eval, num_tgt_train, device, logger)
+    print("Tuning mnist-source-only model")
+    dann = tune_labels(dann, params,src_data_loader,src_data_loader_eval, tgt_data_loader, tgt_data_loader_eval, num_tgt_train, device, logger)

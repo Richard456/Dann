@@ -12,7 +12,7 @@ import torch.backends.cudnn as cudnn
 import math
 cudnn.benchmark = True
 
-def tune_labels(model, params, tgt_data_loader, tgt_data_loader_eval, num_tgt, device, logger):
+def tune_labels(model, params, src_data_loader, scr_data_loader_eval, tgt_data_loader, tgt_data_loader_eval, num_tgt, device, logger):
     """Train dann."""
     ####################
     # 1. setup network #
@@ -95,18 +95,23 @@ def tune_labels(model, params, tgt_data_loader, tgt_data_loader_eval, num_tgt, d
 
         # eval model
         if ((epoch + 1) % params.eval_step == 0):
+            src_test_loss, src_acc,_=test_weight(model,scr_data_loader_eval,device,flag='source')
+            logger.add_scalar('src_test_loss', src_test_loss, global_step)
+            logger.add_scalar('src_acc', src_acc, global_step)
+            
             tgt_test_loss, tgt_acc, _ = test_weight(model, tgt_data_loader_eval, device, flag='target')
             logger.add_scalar('tgt_test_loss', tgt_test_loss, global_step)
             logger.add_scalar('tgt_acc', tgt_acc, global_step)
 
+           
 
         # save model parameters
         if ((epoch + 1) % params.save_step == 0):
             save_model(model, params.model_root,
-                       params.src_dataset + '-' + params.tgt_dataset +"tuning"+ "-dann-{}.pt".format(epoch + 1))
+                       params.src_dataset + '-' + params.tgt_dataset +"tuning"+ "-mnist-only-{}.pt".format(epoch + 1))
 
     # save final model
-    save_model(model, params.model_root, params.src_dataset + '-' + params.tgt_dataset + " tuning" + "-dann-final.pt")
+    save_model(model, params.model_root, params.src_dataset + '-' + params.tgt_dataset + " tuning" + "-mnist-only-final.pt")
 
     return model
 

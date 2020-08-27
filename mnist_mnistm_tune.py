@@ -66,7 +66,7 @@ for data_mode in [1,2]:
         tgt_dataset = "mnistm"
         if data_mode==1:
             dann_restore = os.path.join(restore_root,'MNIST->MNIST-M[0-4]/vanilla/100 samples/100 epochs/0804_011751/mnist-mnistm-dann-final.pt')
-        else:
+        elif data_mode==2:
             dann_restore = os.path.join(restore_root,'MNIST->MNIST-M[5-9]/vanilla/100 samples/100 epochs/0804_090442/mnist-mnistm-dann-final.pt')
         # params for pretrain
         num_epochs_src = 100
@@ -115,8 +115,13 @@ for data_mode in [1,2]:
     # init device
     device = torch.device("cuda:" + params.gpu_id)
 
-    # 0-4
-    _, target_weight = get_data(params.data_mode)
+    # load dataset
+    source_weight, target_weight = get_data(params.data_mode)
+
+    src_data_loader, num_src_train = get_data_loader_weight(
+        params.src_dataset, params.dataset_root, params.batch_size, train=True, weights = source_weight)
+    src_data_loader_eval, _ = get_data_loader_weight(
+        params.src_dataset, params.dataset_root, params.batch_size, train=False, weights = source_weight)
 
     tgt_data_loader, num_tgt_train = get_data_loader_weight(
         params.tgt_dataset, params.dataset_root, params.batch_size, 
@@ -132,6 +137,7 @@ for data_mode in [1,2]:
     # freeze model but last layer
     for param in dann.parameters():
         param.requires_grad = False
+    print(dann)
 
     dann.classifier[6] = nn.Linear(100, 10)
     dann=dann.to(device)
@@ -139,4 +145,4 @@ for data_mode in [1,2]:
 
     # train dann model
     print("Tuning dann model")
-    dann = tune_labels(dann, params,  tgt_data_loader, tgt_data_loader_eval, num_tgt_train, device, logger)
+    dann = tune_labels(dann, params,src_data_loader,src_data_loader_eval, tgt_data_loader, tgt_data_loader_eval, num_tgt_train, device, logger)

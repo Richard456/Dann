@@ -196,9 +196,9 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             global_step += 1
 
             # print step info
-            logger.add_scalar('src_loss_class', src_loss_class.item(), global_step)
-            logger.add_scalar('src_loss_domain', src_loss_domain.item(), global_step)
-            logger.add_scalar('tgt_loss_domain', tgt_loss_domain.item(), global_step)
+            logger.add_scalar('src_class_loss', src_loss_class.item(), global_step)
+            logger.add_scalar('src_domain_loss', src_loss_domain.item(), global_step)
+            logger.add_scalar('tgt_domain_loss', tgt_loss_domain.item(), global_step)
             logger.add_scalar('loss', loss.item(), global_step)
 
             if ((step + 1) % params.log_step == 0):
@@ -213,10 +213,10 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
             src_test_loss, src_acc, src_acc_domain = test(model, src_data_loader, device, flag='source')
             logger.add_scalar('src_test_loss', src_test_loss, global_step)
             logger.add_scalar('src_acc', src_acc, global_step)
-            logger.add_scalar('src_acc_domain', src_acc_domain, global_step)
+            logger.add_scalar('src_domain_acc', src_acc_domain, global_step)
             logger.add_scalar('tgt_test_loss', tgt_test_loss, global_step)
             logger.add_scalar('tgt_acc', tgt_acc, global_step)
-            logger.add_scalar('tgt_acc_domain', tgt_acc_domain, global_step)
+            logger.add_scalar('tgt_domain_acc', tgt_acc_domain, global_step)
 
 
         # save model parameters

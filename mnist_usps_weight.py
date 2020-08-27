@@ -36,7 +36,7 @@ train_epochs_verbosity={
     100: "100 epochs"
 }
 
-for data_mode in [1]: 
+for data_mode in [2]: 
     for run_mode in [1]:
         for sample_size in [250]:
             if run_mode==0 and sample_size!=50:
