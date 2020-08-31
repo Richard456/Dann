@@ -24,6 +24,16 @@ A PyTorch implementation for paper *[Unsupervised Domain Adaptation by Backpropa
 - `GTSRBmodel()`
 - `AlexModel`
     - not successful, mainly due to the pretrained model difference
+    
+- runs, new_runs, attack-runs are directories for saving results
+- _fixcls means to fix f while tuning \phi and discriminator
+- cifar10_c is corrupted cifar10 with various perturbation types
+- Run experients: python dataset1_dataset2.py
+- Current FGSM is problematic, and can be ignored
+
+Todo:
+- Implement lp_bounded attacks, eg. PGD
+
 
 ## Result
 
