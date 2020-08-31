@@ -40,7 +40,7 @@ class Config(object):
     gpu_id = '0'
 
     ## for digit
-    num_epochs = 1
+    num_epochs = 100
     log_step = 20
     save_step = 50
     eval_step = 1

@@ -6,13 +6,6 @@ from PIL import Image
 import os
 import numpy as np
 
-"""
-def GetLoader(path):
-    imgs = torch.from_numpy(np.load(path))
-    labels = torch.from_numpy(np.load(path))
-    return imgs,labels
-"""
-
 def get_cifar10_c(dataset_root, batch_size, train, noise_type):
     """Get CIFAR10_C datasets loader."""
     
@@ -26,24 +19,19 @@ def get_cifar10_c(dataset_root, batch_size, train, noise_type):
                                       ])
 
     # datasets and data loader
-    """
-    cifar10_c_dataset = datasets.DatasetFolder(
-        root=os.path.join(dataset_root),
-        loader=GetLoader,
-        extensions=['.npy']
-    )
-    """
-
     cifar10_c_dataset = GetLoader(
         data_root=os.path.join(dataset_root),
         noise_type=noise_type,
         transform=pre_process)
+    
+    print("dataset len: ",len(cifar10_c_dataset))
 
     train_size = int(0.8 * len(cifar10_c_dataset))
     test_size = len(cifar10_c_dataset) - train_size
 
     train_dataset, test_dataset = torch.utils.data.random_split(cifar10_c_dataset, [train_size, test_size])
-
+    print("train len: ",len(train_dataset))
+    print("test len: ",len(test_dataset))
     if train:
         cifar10_c_dataset=train_dataset
     else:
@@ -72,8 +60,7 @@ class GetLoader(data.Dataset):
 
     def __getitem__(self, item):
         imgs, labels= self.imgs[item], self.labels[item]
-
-        imgs=Image.fromarray(np.uint8(imgs)).convert('RGB')
+        imgs = Image.fromarray(imgs, 'RGB')
         
         if self.transform is not None:
             imgs = self.transform(imgs)
