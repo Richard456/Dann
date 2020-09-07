@@ -13,7 +13,7 @@ class Config(object):
     # params for path
     model_name = "mnist-mnistm"
     dataset_root = get_dataset_root()
-    model_root = os.path.expanduser(os.path.join('runs', model_name))
+    model_root = os.path.expanduser(os.path.join('new_runs', model_name))
     finetune_flag = False
 
     # params for datasets and data loader
@@ -53,11 +53,11 @@ class Config(object):
     lr_adjust_flag = 'simple'
     src_only_flag = False
 
-    manual_seed = 0
+    manual_seed = 8888
     alpha = 0
 
     # params for optimizing models
-    lr = 2e-4
+    lr = 1e-4
     momentum = 0
     weight_decay = 0
 

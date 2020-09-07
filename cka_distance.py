@@ -48,7 +48,9 @@ def l2_distance(net_one,net_two):
 net_S = init_model(net=MNISTmodel(), restore="/nobackup/yguo/Dann/new_runs/mnist/mnist-mnistm-dann-final.pt")
 # Pretrained MNIST-m source 
 net_T = init_model(net=MNISTmodel(), restore="/nobackup/yguo/Dann/new_runs/mnistm/mnistm-mnist-dann-final.pt") 
+init_random_seed(8888)
 net_0 = init_model(net=MNISTmodel(), restore=None) 
+init_random_seed(0)
 net_1 = init_model(net=MNISTmodel(), restore=None) 
 # MNIST --> MNIST m 
 
@@ -56,18 +58,26 @@ net_1 = init_model(net=MNISTmodel(), restore=None)
 
 # loader = get_cifar10('/nobackup/richard/dataset', 5000, True)
 #----------------------------------------------------------------------------------------
+net_S.eval()
+net_T.eval()
+net_0.eval()
+net_1.eval()
+
+#----------------------------------------------------------------------------------------
+
 
 sims = [] 
 import torch.nn.functional as F 
 
-for epoch in range(1,101,5):
+for epoch in range(1,101,20):
 # for epoch in [100]:
     # net_DANN = init_model(net=MNISTmodel(), restore="/nobackup/yguo/Dann/new_runs/mnist-mnistm_fixcls/mnist-mnistm-0-dann-{}.pt".format(epoch))
     net_DANN = init_model(net=MNISTmodel(), restore="/nobackup/yguo/Dann/runs/mnist-mnistm/mnist-mnistm-dann-{}.pt".format(epoch))
     # net_DANN = init_model(net=MNISTmodel(), restore="/nobackup/yguo/Dann/attack_runs/cifar10-cifar10_c_fog/cifar10-cifar10_c-dann-{}.pt".format(epoch))
+    net_DANN.eval()
     loader= get_data_loader(
     'mnistm', '/nobackup/yguo/datasets', 10000, 
-    train=True)
+    train=False)
     feature_Ss = [] 
     feature_Ts = []
     feature_DANNs = []
@@ -112,7 +122,7 @@ for epoch in range(1,101,5):
     sims.append(sim)
     print(sim)
     result = np.vstack(sims)
-    np.save("new_runs/sim_mnistm_original.npy", result)
+    #np.save("new_runs/sim_mnistm_original.npy", result)
     # np.save("new_runs/sim_cifar10c_original.npy", result)
 
     #print("l2 distance between these two nets is: ",l2_distance(net_A,net_B))

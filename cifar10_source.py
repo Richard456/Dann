@@ -64,7 +64,7 @@ class Config(object):
     ## for digit
     num_epochs = 100
     log_step = 1
-    save_step = 25
+    save_step = 1
     eval_step = 1
 
     ## for office
@@ -110,7 +110,7 @@ src_data_loader_eval= get_data_loader(
 # Cannot use the same sampler for both training and testing dataset 
 
 # load dann model
-dann = init_model(net=MNISTmodel(), restore="/nobackup/richard/pytorch-dann/runs/cifar10-source-only/0827_135956/cifar10_ training-cifar10-final.pt").to(device)
+dann = init_model(net=MNISTmodel(), restore=None).to(device)
 
 """
 # freeze model but last layer

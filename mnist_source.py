@@ -11,7 +11,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 class Config(object):
     # params for path
-    model_name = "mnistm"
+    model_name = "mnist"
     dataset_root = get_dataset_root()
     model_root = os.path.expanduser(os.path.join('new_runs', model_name))
     finetune_flag = False
@@ -20,13 +20,13 @@ class Config(object):
     batch_size = 64
 
     # params for source dataset
-    src_dataset = "mnistm"
+    src_dataset = "mnist"
     src_model_trained = True
     src_classifier_restore = os.path.join(model_root, src_dataset + '-source-classifier-final.pt')
     class_num_src = 31
 
     # params for target dataset
-    tgt_dataset = "mnist"
+    tgt_dataset = "mnistm"
     tgt_model_trained = True
     dann_restore = os.path.join(model_root, src_dataset + '-' + tgt_dataset + '-dann-final.pt')
 
@@ -53,11 +53,11 @@ class Config(object):
     lr_adjust_flag = 'simple'
     src_only_flag = False
 
-    manual_seed = 0
+    manual_seed = 8888
     alpha = 0
 
     # params for optimizing models
-    lr = 2e-4
+    lr = 1e-4
     momentum = 0
     weight_decay = 0
 

@@ -15,6 +15,7 @@ import numpy as np
 from contextlib import redirect_stdout
 
 
+
 model_name = "cifar10c-source-only"
 dataset_root = get_dataset_root()
 model_root = os.path.expanduser(os.path.join('runs', model_name))
@@ -65,7 +66,7 @@ class Config(object):
     ## for digit
     num_epochs = 100
     log_step = 1
-    save_step = 25
+    save_step = 1
     eval_step = 1
 
     ## for office
