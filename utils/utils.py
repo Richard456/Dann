@@ -20,7 +20,7 @@ from datasets.synsigns import get_synsigns
 from datasets.gtsrb import get_gtsrb
 
 def get_dataset_root(): 
-    return '/nobackup/richard/dataset'
+    return '/nobackup/yguo/datasets'
 
 # data mode: 
 # 0. All one (uniform samplings)
@@ -38,6 +38,12 @@ def get_dataset_root():
 def get_model_root(model_name, data_mode, run_mode, sample_size, num_epochs):
     model_root = os.path.expanduser(os.path.join('runs', model_name, data_mode, run_mode,sample_size,num_epochs))
     return model_root
+def get_model_root0(model_name, data_mode, run_mode):
+    data_mode = 'data{}'.format(data_mode)
+    run_mode = 'run{}'.format(run_mode)
+    model_root = os.path.expanduser(os.path.join('runs', model_name, data_mode, run_mode))
+    return model_root
+
 
 def get_data(mode): 
     # Return a tuple of lists, where the first list corresponds to the source 

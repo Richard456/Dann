@@ -28,7 +28,7 @@ class Config(object):
     # params for target dataset
     tgt_dataset = "mnistm"
     tgt_model_trained = True
-    dann_restore = "/nobackup/richard/pytorch-dann/runs/mnist-source-only/0807_201604/mnist_training-mnist-100.pt"
+    dann_restore = "/nobackup/yguo/Dann/new_runs/mnist/mnist-mnistm-dann-final.pt"
 
     # params for pretrain
     num_epochs_src = 100
@@ -42,7 +42,7 @@ class Config(object):
     ## for digit
     num_epochs = 100
     log_step = 20
-    save_step = 50
+    save_step = 1
     eval_step = 1
 
     ## for office
@@ -60,6 +60,8 @@ class Config(object):
     lr = 2e-4
     momentum = 0
     weight_decay = 0
+    
+    noise_type = "0"
 
 params = Config()
 

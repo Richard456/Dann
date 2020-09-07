@@ -30,7 +30,7 @@ def l2_distance(net_one,net_two):
     
     print("Calculating l2 distance")
 
-    distance = np.linalg.norm(params_one-params_two)
+    distance = np.linalg.norm(params_one-params_two)/np.linalg.norm(params_one)
     
     return distance
 

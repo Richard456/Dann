@@ -134,10 +134,10 @@ def train_dann(model, params, src_data_loader, tgt_data_loader, tgt_data_loader_
         # save model parameters
         if ((epoch + 1) % params.save_step == 0):
             save_model(model, params.model_root,
-                       params.src_dataset + '-' + params.tgt_dataset + '-'+ params.noise_type + "-dann-{}.pt".format(epoch + 1))
+                       params.src_dataset + '-' + params.tgt_dataset + "-dann-{}.pt".format(epoch + 1))
 
     # save final model
-    save_model(model, params.model_root, params.src_dataset + '-' + params.tgt_dataset +'-'+ params.noise_type + "-dann-final.pt")
+    save_model(model, params.model_root, params.src_dataset + '-' + params.tgt_dataset + "-dann-final.pt")
     
     return model
 

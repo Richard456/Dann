@@ -6,7 +6,7 @@ import torch
 sys.path.append('../')
 from models.model import *
 from core.tune_labels import tune_labels
-from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed, get_dataset_root, get_model_root, get_data
+from utils.utils import get_data_loader, get_data_loader_weight, init_model, init_random_seed, get_dataset_root, get_model_root0, get_data
 from torch.utils.tensorboard import SummaryWriter
 import numpy as np
 import shutil
@@ -21,10 +21,11 @@ data_mode_verbosity={
     4: "MNIST->MNIST-M with strong shift"
 }
 
-for data_mode in [1,2]:
+for data_mode, run_mode in [(0,0)]:
     model_name = "mnist-mnistm-tune"
-    dataset_root = get_dataset_root()
-    model_root = os.path.expanduser(os.path.join('runs', model_name, data_mode_verbosity[data_mode]))
+    # dataset_root = get_dataset_root()
+    dataset_root = '/nobackup/yguo/datasets'
+    model_root = get_model_root0(model_name, data_mode, run_mode)
     model_root = os.path.join(model_root, datetime.datetime.now().strftime('%m%d_%H%M%S'))
     os.makedirs(model_root, exist_ok=True)
     logname = model_root + '/log.txt'
@@ -62,12 +63,14 @@ for data_mode in [1,2]:
         class_num_src = 31
 
         # params for target dataset
-        restore_root=os.path.expanduser(os.path.join('runs', 'mnist-mnistm-weight'))
+        restore_root=os.path.expanduser(os.path.join('runs', "/nobackup/richard/pytorch-dann/runs/mnist-source-only/0807_201604/mnist_training-mnist-100.pt"))
         tgt_dataset = "mnistm"
         if data_mode==1:
             dann_restore = os.path.join(restore_root,'MNIST->MNIST-M[0-4]/vanilla/100 samples/100 epochs/0804_011751/mnist-mnistm-dann-final.pt')
         elif data_mode==2:
             dann_restore = os.path.join(restore_root,'MNIST->MNIST-M[5-9]/vanilla/100 samples/100 epochs/0804_090442/mnist-mnistm-dann-final.pt')
+        else: 
+            dann_restore = os.path.join("/nobackup/richard/pytorch-dann/runs/mnist-source-only/0807_201604/mnist_training-mnist-100.pt")
         # params for pretrain
         num_epochs_src = 100
         log_step_src = 10

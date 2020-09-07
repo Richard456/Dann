@@ -42,7 +42,7 @@ class Config(object):
     ## for digit
     num_epochs = 100
     log_step = 20
-    save_step = 50
+    save_step = 1
     eval_step = 1
 
     ## for office

@@ -28,7 +28,8 @@ class Config(object):
     # params for target dataset
     tgt_dataset = "cifar10_c"
     tgt_model_trained = False
-    dann_restore = "/nobackup/richard/pytorch-dann/runs/cifar10-source-only/0827_135956/cifar10_ training-cifar10-final.pt"
+    # dann_restore = "/nobackup/richard/pytorch-dann/runs/cifar10-source-only/0827_135956/cifar10_ training-cifar10-final.pt"
+    dann_restore = None
 
     # params for pretrain
     num_epochs_src = 100
@@ -42,7 +43,7 @@ class Config(object):
     ## for digit
     num_epochs = 100
     log_step = 20
-    save_step = 50
+    save_step = 1
     eval_step = 1
 
     ## for office
